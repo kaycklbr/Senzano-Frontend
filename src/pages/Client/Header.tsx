@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import logo from "../../../logo.png"
 
 const Header: React.FC = () => {
 
@@ -12,8 +13,8 @@ const Header: React.FC = () => {
         <div className="md:ml-20 flex items-center justify-between gap-2 ml-4 mr-2 py-1 h-full dark:border-gray-800 ">
           <Link to="/" className="">
             <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
+              className="dark:hidden w-40"
+              src={logo}
               alt="Logo"
             />
             <img

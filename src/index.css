@@ -1,11 +1,23 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
 layer(base);
 
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
+
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --color-blue-dark:  #043C7B;
+    --color-pink: #F36995;
+    --color-blue-light: #22635D;
+    --color-white: #ffffff;
+    
+    --color-Offwhite: #F2F2F2;
+    --color-Vinho:#86B7B1;
+
+
+
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
 
@@ -777,4 +789,7 @@ span.flatpickr-weekday,
 
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
+}
+.title {
+  font-family: 'Abril Fatface', cursive;
 }
