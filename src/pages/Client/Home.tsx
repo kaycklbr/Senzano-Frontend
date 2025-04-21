@@ -22,6 +22,9 @@ export default function Home() {
   const [isLogin, setIsLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [instagramFields, setInstagramFields] = useState([""]);
+  const [isCeremonyActive, setIsCeremonyActive] = useState(true);
+  const [isPartyActive, setIsPartyActive] = useState(true);
+  const [images, setImages] = useState<{ file: File; url: string }[]>([]);
 
   function handleAddField() {
     setInstagramFields([...instagramFields, ""]);
@@ -42,11 +45,18 @@ export default function Home() {
       return newStep;
     });
   };
-  const [images, setImages] = useState([]);
+ 
 
-  const handleDrop = (files: File[]) => {
-    console.log("Arquivos recebidos:", files);
+  const handleDrop = (acceptedFiles: File[]) => {
+    const newImages = acceptedFiles.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+  
+    setImages((prevImages) => [...prevImages, ...newImages]);
   };
+  
+  
 
   const onDrop = (acceptedFiles: File[]) => {
     console.log("Files dropped:", acceptedFiles);
@@ -60,7 +70,7 @@ export default function Home() {
   }
   
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: handleDrop,
     accept: {
       "image/png": [],
       "image/jpeg": [],
@@ -71,12 +81,11 @@ export default function Home() {
   return (
     <>
       <PageMeta title={"Convitin"} description="Crie seu convite" />
-      <section className="min-h-screen flex items-center justify-center bg-gray-100 px-2">
-        <div ref={parent} className="w-full max-w-xl">
-          <p className="mb-4 text-sm text-gray-500">
-            DEBUG: passo atual = {step}
-          </p>
-
+      <section className="h-screen flex items-center justify-center bg-gray-100 px-0  md:px-2 ">
+        <div ref={parent} className="  w-full h-full bg-white 
+    md:h-auto md:max-w-md md:rounded-xl md:shadow-md
+    p-4">
+         
           {step === 0 && (
             <>
               <FormCard
@@ -133,22 +142,20 @@ export default function Home() {
                       </div>
 
                       <span className="font-medium underline text-theme-sm text-pink">
-                        Browse File
+                      Escolha sua foto
                       </span>
-                      <span className="font-medium text-pink">
-                        Escolha sua foto
-                      </span>
+                      
                     </div>
                   </form>
                 </div>
 
-                <div>
+                {/* <div > */}
                   <DatePicker
                     id="date-picker"
                     label="Data do evento"
-                    placeholder="Selecione a data"
+                     placeholder="Selecione a data"
                   />
-                </div>
+                {/* </div> */}
 
                 <div>
                   <Label htmlFor="eventPhrase">Frase inicial</Label>
@@ -172,110 +179,124 @@ export default function Home() {
               onBack={handleBackStep}
             >
               <div>
-                <Switch label={"cerinomia"} color="pink" />
+                <Switch label={"Cerimônia"} color="pink" defaultChecked={isCeremonyActive}
+                  onChange={() => setIsCeremonyActive(prev => !prev)}  />
               </div>
               <div className="flex gap-4 ">
-                <DatePicker id="date-picker" label={"Data do evento"} />
+                <DatePicker id="date-picker"  label={"Data do evento"} />
                 <div>
                   <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm" label="Hora do evento" />
+                  <Input type="time" id="tm" disabled={!isCeremonyActive} className='p-2 border rounded-md ${isCeremonyActive ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" placeholder="Clube de eventos" />
+              <Input type="text" id="address" disabled={!isCeremonyActive} className='p-2 border rounded-md ${isCeremonyActive ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
               <Label htmlFor="fulladdress">Enderenço </Label>
               <Input
                 type="text"
                 id="fullAddress"
+                disabled={!isCeremonyActive}
+            className={`p-2 border rounded-md ${
+              isCeremonyActive ? "bg-white" : "bg-gray-100 text-gray-400"
+            }`}
                 placeholder="Rua fulano 123"
               />
 
               <div>
-                <Switch label={"Festa"} />
+                <Switch label={"Festa"} defaultChecked={isPartyActive}
+          onChange={(checked) => setIsPartyActive(checked)} />
               </div>
 
               <div className="flex gap-4 ">
                 <DatePicker id="date-picker" label={"Data do evento"} />
                 <div>
                   <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm" />
+                  <Input type="time" id="tm"   disabled={!isPartyActive}
+            className={`p-2 border rounded-md ${
+              isPartyActive ? "bg-white" : "bg-gray-100 text-gray-400"
+            }`} />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" placeholder="Clube de eventos" />
+              <Input type="text" id="address" placeholder="Clube de eventos"   disabled={!isPartyActive}
+            className={`p-2 border rounded-md ${
+              isPartyActive ? "bg-white" : "bg-gray-100 text-gray-400"
+            }`} />
               <Label htmlFor="fulladdress">Enderenço </Label>
               <Input
                 type="text"
                 id="fullAddress"
                 placeholder="Rua fulano 123"
+                disabled={!isPartyActive}
+                className={`p-2 border rounded-md ${
+                  isPartyActive ? "bg-white" : "bg-gray-100 text-gray-400"
+                }`}
               />
             </FormCard>
           )}
 
         
-            
+      
 {step === 2 && (
   <FormCard
     stepText="Passo 3"
     title="Galeria de fotos"
-    
     buttonLabel={images.length === 0 ? "Pular etapa" : "Próximo passo"}
     icon={<FaAngleLeft className="text-blue-dark" />}
     onSubmit={nextStep}
     onBack={handleBackStep}
   >
-    {images.length === 0 ? (
-      <form
-        {...getRootProps()}
-        className={`dropzone rounded-xl flex flex-col items-center justify-center border-2 border-dashed ${
-          isDragActive
-            ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
-            : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-        } w-24 h-24 p-4 transition`}
-        id="demo-upload"
-      >
-        <input {...getInputProps()} />
-        <div className="dz-message flex flex-col items-center m-0">
-          <div className="mb-4 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-              <svg
-                className="fill-current"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M12 3c-.22 0-.42.09-.58.24L7.76 6.9c-.29.29-.29.77 0 1.06.29.29.77.29 1.06 0L11 5.78V16c0 .41.34.75.75.75s.75-.34.75-.75V5.78l2.18 2.18c.29.29.77.29 1.06 0 .29-.29.29-.77 0-1.06L12.58 3.24C12.42 3.09 12.22 3 12 3zM5 16c0-.41-.34-.75-.75-.75S3.5 15.59 3.5 16v3c0 1.24 1.01 2.25 2.25 2.25h12.5c1.24 0 2.25-1.01 2.25-2.25v-3c0-.41-.34-.75-.75-.75s-.75.34-.75.75v3c0 .41-.34.75-.75.75H6.25c-.41 0-.75-.34-.75-.75v-3z"
-                />
-              </svg>
-            </div>
-          </div>
-          <span className="text-xs font-medium text-pink">
-            Escolha sua foto
-          </span>
-        </div>
-      </form>
-    ) : (
-      <div className="grid grid-cols-3 gap-4 mt-4">
-        {images.map((img, index) => (
-          <div
-            key={index}
-            className="w-24 h-24 rounded-md overflow-hidden border-2 border-gray-300"
+    
+    <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-4">
+  {/* Botão de adicionar foto */}
+  <form
+    {...getRootProps()}
+    className={`dropzone rounded-xl flex flex-col items-center justify-center border-2 border-dashed ${
+      isDragActive
+        ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
+        : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+    } w-full aspect-square p-2 transition`}
+    id="demo-upload"
+  >
+    <input {...getInputProps()} />
+    <div className="dz-message flex flex-col items-center m-0">
+      <div className="mb-1 flex justify-center">
+        <div className="flex h-5 w-5 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+          <svg
+            className="fill-current"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <img
-              src={img.url}
-              alt={`Foto ${index}`}
-              className="object-cover w-full h-full"
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M12 3c-.22 0-.42.09-.58.24L7.76 6.9c-.29.29-.29.77 0 1.06.29.29.77.29 1.06 0L11 5.78V16c0 .41.34.75.75.75s.75-.34.75-.75V5.78l2.18 2.18c.29.29.77.29 1.06 0 .29-.29.29-.77 0-1.06L12.58 3.24C12.42 3.09 12.22 3 12 3zM5 16c0-.41-.34-.75-.75-.75S3.5 15.59 3.5 16v3c0 1.24 1.01 2.25 2.25 2.25h12.5c1.24 0 2.25-1.01 2.25-2.25v-3c0-.41-.34-.75-.75-.75s-.75.34-.75.75v3c0 .41-.34.75-.75.75H6.25c-.41 0-.75-.34-.75-.75v-3z"
             />
-          </div>
-        ))}
+          </svg>
+        </div>
       </div>
-    )}
+      <span className="text-[8px] sm:text-xs font-medium text-pink text-center">
+        Adicionar foto
+      </span>
+    </div>
+  </form>
+
+  {/* Imagens adicionadas */}
+  {images.map((imgObj, index) => (
+    <div key={index} className="w-full aspect-square  rounded-md overflow-hidden border-2 border-gray-300">
+      <img
+        src={imgObj.url}
+        alt={`Foto ${index}`}
+        className="object-cover w-full h-full"
+      />
+    </div>
+  ))}
+</div>
   </FormCard>
 )}
+
 
           {step === 3 && (
             <FormCard
@@ -304,11 +325,6 @@ export default function Home() {
                 <Label>Observações</Label>
                 <Input type="text" id="observations" placeholder="Vá de uber" />
                 <Label>Instagram dos organizadores</Label>
-
-                {/* <Input type="text" id="instagram" placeholder="@instagram" />
-                <Link to="/login" className="text-pink font-size-sm">
-                Adicionar outro
-                </Link> */}
                 <div className="flex flex-col gap-4">
                               {instagramFields.map((value, index) => (
                       <Input
