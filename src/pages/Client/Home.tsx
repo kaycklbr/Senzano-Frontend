@@ -81,7 +81,7 @@ export default function Home() {
   return (
     <>
       <PageMeta title={"Convitin"} description="Crie seu convite" />
-      <section className="h-screen flex items-center justify-center bg-gray-100 px-0  md:px-2 ">
+      <section className="h-screen pt-12 flex items-center justify-center bg-gray-100 px-0  md:px-2 ">
         <div ref={parent} className="  w-full h-full bg-white 
     md:h-auto md:max-w-md md:rounded-xl md:shadow-md
     p-4">

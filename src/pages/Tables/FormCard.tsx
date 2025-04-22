@@ -29,13 +29,15 @@ const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', o
         {children}
 
 
-        <div className="flex items-center justify-center gap-4 mt-6">
+        <div className="flex  items-center justify-center gap-4 mt-6">
+
           {icon && (
             <button 
               type="button"
               onClick={onBack} 
               className="flex items-center justify-center border border-blue-dark w-10 h-10 rounded-md"
-            >
+              style={{height: '45px'}}
+           >
               {icon}
             </button>
           )}
