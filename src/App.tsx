@@ -21,6 +21,7 @@ import ClientHome from "./pages/Client/Home";
 // import { useContext } from "react";
 // import { AuthContext } from "./context/AuthProvider";
 import ClientLayout from "./layout/ClientLayout";
+import Convites from "./components/common/Convites";
 
 export default function App() {
   return (
@@ -37,27 +38,28 @@ export default function App() {
             <Route index path="" element={<Home />} />
 
             {/* Others Page */}
-            <Route path="/admin//profile" element={<UserProfiles />} />
-            <Route path="/admin//calendar" element={<Calendar />} />
-            <Route path="/admin//blank" element={<Blank />} />
+            <Route path="convites" element={<Convites />} />
+            <Route path="profile" element={<UserProfiles />} />
+            <Route path="calendar" element={<Calendar />} />
+            <Route path="blank" element={<Blank />} />
 
             {/* Forms */}
-            <Route path="/admin//form-elements" element={<FormElements />} />
+            <Route path="form-elements" element={<FormElements />} />
 
             {/* Tables */}
-            <Route path="/admin//basic-tables" element={<BasicTables />} />
+            <Route path="basic-tables" element={<BasicTables />} />
 
             {/* Ui Elements */}
-            <Route path="/admin//alerts" element={<Alerts />} />
-            <Route path="/admin//avatars" element={<Avatars />} />
-            <Route path="/admin//badge" element={<Badges />} />
-            <Route path="/admin//buttons" element={<Buttons />} />
-            <Route path="/admin//images" element={<Images />} />
-            <Route path="/admin//videos" element={<Videos />} />
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="avatars" element={<Avatars />} />
+            <Route path="badge" element={<Badges />} />
+            <Route path="buttons" element={<Buttons />} />
+            <Route path="images" element={<Images />} />
+            <Route path="videos" element={<Videos />} />
 
             {/* Charts */}
-            <Route path="/admin//line-chart" element={<LineChart />} />
-            <Route path="/admin//bar-chart" element={<BarChart />} />
+            <Route path="line-chart" element={<LineChart />} />
+            <Route path="bar-chart" element={<BarChart />} />
           </Route>
 
           {/* Auth Layout */}

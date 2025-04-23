@@ -32,6 +32,11 @@ const navItems: NavItem[] = [
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
   {
+    icon: <UserCircleIcon />, // Ou outro ícone que você quiser
+    name: "Convites",
+    path: "/convites", // Se tiver uma rota para convites
+  },
+  {
     icon: <CalenderIcon />,
     name: "Calendar",
     path: "/calendar",
