@@ -37,7 +37,7 @@ export default function Home() {
   }
   // const nextStep = () => setStep((prev) => prev + 1);
   const nextStep = () => {
-    console.log("🟢 Botão clicado - tentando ir para o próximo passo...");
+    console.log("🟢 Botão clicado - tentando ir para o próximo passo...", state);
     setStep((prev) => {
       console.log("🔄 Step anterior:", prev);
       const newStep = prev + 1;
@@ -56,12 +56,6 @@ export default function Home() {
     setImages((prevImages) => [...prevImages, ...newImages]);
   };
   
-  
-
-  const onDrop = (acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles);
-    // Handle file uploads here
-  };
   const toggleIsLogin = () => {
     setIsLogin((prev) => !prev);
   };
@@ -78,6 +72,36 @@ export default function Home() {
       "image/svg+xml": [],
     },
   });
+
+  const [ state, setState ] = useState({
+    title: '',
+    event_date: '',
+    description: '',
+    enable_ceremony: true,
+    ceremony_date: '',
+    ceremony_time: '',
+    ceremony_location: '',
+    ceremony_address: '',
+    enable_party: true,
+    party_date: '',
+    party_time: '',
+    party_location: '',
+    party_address: '',
+    slug: '',
+    dress_code: '',
+    observations: '',
+    owner_instagram: '',
+    background_music: '',
+    start_background_music: ''
+  });
+
+
+  const setValue = (event: any) => {
+    const name = event.currentTarget.name;
+    const value = event.currentTarget.value;
+    setState(prev => ({...prev, [name]: value}));
+  }
+
   return (
     <>
       <PageMeta title={"Convitin"} description="Crie seu convite" />
@@ -96,10 +120,11 @@ export default function Home() {
                 onSubmit={nextStep}
               >
                 <div>
-                  <Label htmlFor="eventName">Nome do evento</Label>
+                  <Label>Nome do evento</Label>
                   <Input
                     type="text"
-                    id="eventName"
+                    name="title"
+                    onChange={setValue}
                     placeholder="João e Maria, M & H, ..."
                   />
                 </div>
@@ -150,10 +175,12 @@ export default function Home() {
                 </div>
 
                 {/* <div > */}
-                  <DatePicker
-                    id="date-picker"
-                    label="Data do evento"
-                     placeholder="Selecione a data"
+                <Label htmlFor="tm">Data do evento</Label>
+                  <Input
+                    type="date"
+                    name="event_date"
+                    onChange={setValue}
+                    placeholder="Selecione a data"
                   />
                 {/* </div> */}
 
@@ -161,7 +188,8 @@ export default function Home() {
                   <Label htmlFor="eventPhrase">Frase inicial</Label>
                   <Input
                     type="text"
-                    id="eventPhrase"
+                    name="description"
+                    onChange={setValue}
                     placeholder="Venha celebrar conosco nessa festa..."
                   />
                 </div>
@@ -179,59 +207,69 @@ export default function Home() {
               onBack={handleBackStep}
             >
               <div>
-                <Switch label={"Cerimônia"} color="pink" defaultChecked={isCeremonyActive}
-                  onChange={() => setIsCeremonyActive(prev => !prev)}  />
+                <Switch label={"Cerimônia"} color="pink" defaultChecked={state.enable_ceremony}
+                  onChange={(v) => setValue({currentTarget: {name: 'enable_ceremony', value: v}})}  />
               </div>
               <div className="flex gap-4 ">
-                <DatePicker id="date-picker"  label={"Data do evento"} />
+                <div>
+                  <Label htmlFor="tm">Data do evento</Label>
+                  <Input
+                    type="date"
+                    name="ceremony_date"
+                    onChange={setValue}
+                    placeholder="Selecione a data"
+                    />
+                </div>
                 <div>
                   <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm" disabled={!isCeremonyActive} className='p-2 border rounded-md ${isCeremonyActive ? "bg-white" : "bg-gray-100"} text-gray-400' />
+                  <Input type="time" id="tm" name="ceremony_time" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" disabled={!isCeremonyActive} className='p-2 border rounded-md ${isCeremonyActive ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-              <Label htmlFor="fulladdress">Enderenço </Label>
+              <Input type="text" id="address" name="ceremony_address" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+              <Label htmlFor="fulladdress">Endereço</Label>
               <Input
                 type="text"
                 id="fullAddress"
-                disabled={!isCeremonyActive}
+                disabled={!state.enable_ceremony}
             className={`p-2 border rounded-md ${
-              isCeremonyActive ? "bg-white" : "bg-gray-100 text-gray-400"
+              state.enable_ceremony ? "bg-white" : "bg-gray-100 text-gray-400"
             }`}
-                placeholder="Rua fulano 123"
+                placeholder="Rua Cardoso 123"
               />
 
               <div>
-                <Switch label={"Festa"} defaultChecked={isPartyActive}
-          onChange={(checked) => setIsPartyActive(checked)} />
+                <Switch label={"Festa"} color="pink" defaultChecked={state.enable_party}
+                  onChange={(v) => setValue({currentTarget: {name: 'enable_party', value: v}})}  />
               </div>
-
               <div className="flex gap-4 ">
-                <DatePicker id="date-picker" label={"Data do evento"} />
+                <div>
+                  <Label htmlFor="tm">Data do evento</Label>
+                  <Input
+                    type="date"
+                    name="party_date"
+                    onChange={setValue}
+                    placeholder="Selecione a data"
+                    />
+                </div>
                 <div>
                   <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm"   disabled={!isPartyActive}
-            className={`p-2 border rounded-md ${
-              isPartyActive ? "bg-white" : "bg-gray-100 text-gray-400"
-            }`} />
+                  <Input type="time" id="tm" name="party_time" onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" placeholder="Clube de eventos"   disabled={!isPartyActive}
-            className={`p-2 border rounded-md ${
-              isPartyActive ? "bg-white" : "bg-gray-100 text-gray-400"
-            }`} />
-              <Label htmlFor="fulladdress">Enderenço </Label>
+              <Input type="text" id="address" name="party_address" onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+              <Label htmlFor="fulladdress">Endereço</Label>
               <Input
                 type="text"
                 id="fullAddress"
-                placeholder="Rua fulano 123"
-                disabled={!isPartyActive}
-                className={`p-2 border rounded-md ${
-                  isPartyActive ? "bg-white" : "bg-gray-100 text-gray-400"
-                }`}
+                disabled={!state.enable_party}
+            className={`p-2 border rounded-md ${
+              state.enable_party ? "bg-white" : "bg-gray-100 text-gray-400"
+            }`}
+                placeholder="Rua Cardoso 123"
               />
+
             </FormCard>
           )}
 
@@ -308,22 +346,33 @@ export default function Home() {
               onBack={handleBackStep}
             >
               <div>
-                <Label htmlFor="website">URL do convite</Label>
-                <Input
-                  type="url"
-                  id="website"
-                  placeholder="https://example.com"
-                />
+                <Label>URL do convite</Label>
+                <div className="flex">
+                  <div
+                    className="text-gray-600 shadow-theme-xs text-sm flex items-center px-3 border rounded-l-md border-r-0 border-gray-300  bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+                  >
+                    https://convitin.com.br/
+                  </div>
+                  <Input
+                    name="slug"
+                    className="rounded-l-none"
+                    onChange={setValue}
+                    placeholder="joao-e-maria"
+                  />
+                </div>
               </div>
               <div>
                 <Label>Dress Code</Label>
                 <Input
                   type="text"
                   id="dressCode"
+                  name="dress_code"
+                  onChange={setValue}
                   placeholder="João e Maria, M & H, ..."
                 />
                 <Label>Observações</Label>
-                <Input type="text" id="observations" placeholder="Vá de uber" />
+                <Input type="text" id="observations" name="observations"
+                  onChange={setValue} placeholder="Vá de uber" />
                 <Label>Instagram dos organizadores</Label>
                 <div className="flex flex-col gap-4">
                               {instagramFields.map((value, index) => (
@@ -353,10 +402,13 @@ export default function Home() {
                 <Input
                   type="text"
                   id="music"
+                  name="background_music"
+                  onChange={setValue}
                   placeholder="https://www.youtube.com/watch?"
                 />
                 <Label>Iniciar música no segundo</Label>
-                <Input type="text" id="musicSegundo" placeholder="46" />
+                <Input type="text" name="start_background_music"
+                  onChange={setValue} id="musicSegundo" placeholder="46" />
               </div>
             </FormCard>
           )}
