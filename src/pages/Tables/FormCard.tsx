@@ -14,7 +14,7 @@ interface FormCardProps {
 const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', onSubmit, icon, footer, onBack }: FormCardProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault(); 
-    if (onSubmit) onSubmit();
+    if (onSubmit) onSubmit(e);
   };
   return (
     <form
@@ -43,7 +43,7 @@ const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', o
           )}
           
           <Button 
-            onClick={onSubmit} 
+            type="submit"
             className="flex-1"
           >
             {buttonLabel}

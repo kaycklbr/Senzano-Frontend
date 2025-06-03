@@ -8,7 +8,7 @@ const Header: React.FC = () => {
   // if(!authenticated) return <Navigate to="/login" replace />
 
   return (
-    <header className="fixed top-0 left-0 shadow-md w-full h-20 bg-white  z-50 border-b dark:border-gray-800 dark:bg-gray-900">
+    <header className="shadow-md w-full h-20 bg-white  z-50 border-b dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center justify-center h-full ">
         <div className="md:px-8 max-w-6xl px-4 flex items-center justify-between gap-2 ml-4 mr-2 py-1 h-full dark:border-gray-800 ">
           <Link to="/" className="">

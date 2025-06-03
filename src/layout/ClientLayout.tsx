@@ -3,9 +3,9 @@ import Header from "../pages/Client/Header";
 
 const LayoutContent: React.FC = () => {
   return (
-    <div className="mb-5">
+    <div className="flex w-screen h-screen flex-col">
       <Header />
-      <div>
+      <div className="flex-1 h-full overflow-y-auto bg-gray-100 px-0  md:px-2 py-0 md:py-4">
         <Outlet />
       </div>
     </div>
