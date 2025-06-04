@@ -1,14 +1,19 @@
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
 import SignInForm from "../../components/auth/SignInForm";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthProvider";
+import { Navigate } from "react-router";
 
 export default function SignIn() {
+
+  const { authenticated } = useContext(AuthContext);
+
+  if(authenticated) return <Navigate to="/admin" replace />
+
   return (
     <>
-      <PageMeta
-        title="React.js SignIn Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-        description="This is React.js SignIn Tables Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-      />
+      <PageMeta title={"Convitin"} description="Crie seu convite" />
       <AuthLayout>
         <SignInForm />
       </AuthLayout>

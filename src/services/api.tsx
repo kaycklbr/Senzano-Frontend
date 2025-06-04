@@ -1,35 +1,40 @@
-import axios from "axios";
+import { getAccessToken, logout } from '../auth/auth';
+import axios from 'axios';
 
 
 const api = axios.create({
-  // baseURL: 'https://sefaz-api.fisconorte.com.br/',
-  baseURL: 'https://rifafacil.online/api',
+  baseURL: 'https://convitin.com.br/wp-json',
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    'Content-Type': 'application/json'
   }
 });
 
-api.interceptors.request.use(
-  (config) => {
-    config.headers.Authorization = 'Bearer ' + JSON.parse(localStorage.getItem('token') || '');
-    return config;
-  },
-  (error) => {
+// 👉 Anexa token JWT automaticamente
+api.interceptors.request.use(config => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// 👉 Intercepta erro de autenticação e desloga
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
+
+    const isInvalidToken =
+      status === 403 && code === 'jwt_auth_invalid_token';
+    const isUnauthorized = status === 401;
+
+    if (isInvalidToken || isUnauthorized) {
+      // logout();
+    }
+
     return Promise.reject(error);
   }
 );
-
-api.interceptors.response.use((response) => {
-  return response;
-},
-(error) => {
-  if (error.response && [401, 403].includes(error.response.status) && !['/auth/login'].includes(window.location.pathname)) {
-    localStorage.removeItem('token');
-    window.location.href = '/auth/login';
-  }
-
-  return Promise.reject(error);
-})
 
 export default api;

@@ -6,12 +6,17 @@ import "flatpickr/dist/flatpickr.css";
 import App from "./App.tsx";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { ToastContainer } from "react-toastify";
+import { AuthProvider } from "./context/AuthProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <AppWrapper>
-        <App />
+        <AuthProvider>
+          <App />
+          <ToastContainer />
+        </AuthProvider>
       </AppWrapper>
     </ThemeProvider>
   </StrictMode>,

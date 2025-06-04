@@ -1,8 +1,10 @@
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
-import { Outlet } from "react-router";
+import { Navigate, Outlet } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthProvider";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -28,6 +30,10 @@ const LayoutContent: React.FC = () => {
 };
 
 const AppLayout: React.FC = () => {
+
+  const { authenticated } = useContext(AuthContext);
+  if(!authenticated) return <Navigate to="/login" replace />
+
   return (
     <SidebarProvider>
       <LayoutContent />

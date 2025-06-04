@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
@@ -21,7 +21,9 @@ import ClientHome from "./pages/Client/Home";
 // import { useContext } from "react";
 // import { AuthContext } from "./context/AuthProvider";
 import ClientLayout from "./layout/ClientLayout";
-import Convites from "./components/common/Convites";
+import Convites from "./pages/Convites/Convites";
+import SignUp from "./pages/AuthPages/SignUp";
+import ConviteEdit from "./pages/Convites/ConviteEdit";
 
 export default function App() {
   return (
@@ -35,10 +37,12 @@ export default function App() {
 
           {/* Dashboard Layout */}
           <Route path="admin" element={<AppLayout />}>
-            <Route index path="" element={<Home />} />
+            {/* <Route index path="" element={<Home />} /> */}
+            <Route index path="" element={<Navigate to="/admin/convites"/>} />
 
             {/* Others Page */}
             <Route path="convites" element={<Convites />} />
+            <Route path="convites/:id" element={<ConviteEdit />} />
             <Route path="profile" element={<UserProfiles />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="blank" element={<Blank />} />
@@ -64,6 +68,7 @@ export default function App() {
 
           {/* Auth Layout */}
           <Route path="/login" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />

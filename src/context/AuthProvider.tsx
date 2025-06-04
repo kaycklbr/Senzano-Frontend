@@ -16,7 +16,7 @@ type IAuthContext = {
 }
 
 const initialValue = {
-  authenticated: !!localStorage.getItem('token'),
+  authenticated: !!localStorage.getItem('access_token'),
   setAuthenticated: () => {},
   user: null,
   setUser: () => {},
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: Props) => {
   const [ authenticated, setAuthenticated ] = useState(initialValue.authenticated);
   const [ user, setUser ] = useState(initialValue.user);
 
-  const [ token, setToken ] = useLocalStorage('token', '');
+  const [ token, setToken ] = useLocalStorage('access_token', '');
 
   useEffect(() => {
     setAuthenticated(!!token);
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: Props) => {
     const loadUser = async () => {
       if(token){
         try {
-          const { data } = await api.get('/accounts/my/');
+          const { data } = await api.get('/wp/v2/users/me');
           setUser(data);
         } catch (err) {
           console.error('Failed to load user', err);
@@ -54,13 +54,12 @@ export const AuthProvider = ({ children }: Props) => {
   }, [token]);
 
   const login = async (email: string, password: string, remember = false) => {
-    const { data } = await api.post('/token/', {
+    const { data } = await api.post('jwt-auth/v1/token', {
       username: email,
-      password,
-      remember
+      password
     });
 
-    setToken(data.access);
+    setToken(data.data.token);
     // setUser(data.user);
   };
 

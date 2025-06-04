@@ -1,9 +1,9 @@
 import PageMeta from "../../components/common/PageMeta";
 
 import Input from "../../components/form/input/InputField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import FormCard from "../../components/common/FormCard";
+import FormCard from "./FormCard";
 import Label from "../../components/form/Label";
 import DatePicker from "../../components/form/date-picker";
 import { EnvelopeIcon } from "../../icons";
@@ -11,7 +11,7 @@ import { UserIcon } from "../../icons";
 
 import Switch from "../../components/form/switch/Switch";
 
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import { FaAngleLeft } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
@@ -19,7 +19,7 @@ import api from "../../services/api";
 import { login, setTokens } from "../../auth/auth";
 import { toast } from "react-toastify";
 // import Input from "../../components/form/form-elements/DefaultInputs"
-export default function Home() {
+export default function ConviteDetails() {
   const [step, setStep] = useState(0);
   const [parent] = useAutoAnimate();
   const [isLogin, setIsLogin] = useState(false);
@@ -129,6 +129,22 @@ export default function Home() {
     start_background_music: ''
   });
 
+  const params = useParams();
+  useEffect(() => {
+    const fetchConvite = async () => {
+      try{
+        const { data } = await api.get('convitin/v1/convites/'+params.id);
+        setState(data);
+        setMainImage(data.main_image);
+        setImages(data.gallery);
+        setInstagramFields(data.owner_instagram.split(','))
+      }catch(e){
+
+      }
+    }
+
+    fetchConvite();
+  }, []);
 
   const setValue = (event: any) => {
     const name = event.currentTarget.name;
@@ -136,7 +152,7 @@ export default function Home() {
     setState(prev => ({...prev, [name]: value}));
   }
 
-  const handleFinish = async () => {
+  const handleSave = async () => {
 
     const data = {...state};
     data.owner_instagram = instagramFields.join(',');
@@ -179,19 +195,13 @@ export default function Home() {
 
   return (
     <>
-      <PageMeta title={"Convitin"} description="Crie seu convite" />
-      <section className="h-full md:h-auto flex items-center justify-center">
+      <section className="h-full md:h-auto flex items-center justify-center w-full">
           <div ref={parent} className="w-full h-full bg-white 
-          md:h-auto md:max-w-md md:rounded-xl md:shadow-md
+          md:h-auto md:rounded-xl md:shadow-md
           p-4">
-          {step === 0 && (
-            <>
               <FormCard
-                title="Crie seu convite"
-                stepText="Passo 1"
-                buttonLabel="Próximo Passo"
-                // icon={<SlArrowRight size={20} color="blue" />}
-                onSubmit={nextStep}
+                title="Informações do Convite"
+                buttonLabel={null}
               >
                 <div>
                   <Label>Nome do evento</Label>
@@ -282,17 +292,10 @@ export default function Home() {
                   />
                 </div>
               </FormCard>
-            </>
-          )}
 
-          {step === 1 && (
             <FormCard
+              buttonLabel={null}
               title="Localização"
-              stepText="Passo 2"
-              buttonLabel="Próximo Passo"
-              icon={<FaAngleLeft className=" text-blue-dark" />}
-              onSubmit={nextStep}
-              onBack={handleBackStep}
             >
               <div>
                 <Switch label={"Cerimônia"} color="pink" defaultChecked={state.enable_ceremony}
@@ -370,18 +373,11 @@ export default function Home() {
               />
 
             </FormCard>
-          )}
 
         
-      
-          {step === 2 && (
             <FormCard
-              stepText="Passo 3"
+              buttonLabel={null}
               title="Galeria de fotos"
-              buttonLabel={images.length === 0 ? "Pular etapa" : "Próximo passo"}
-              icon={<FaAngleLeft className="text-blue-dark" />}
-              onSubmit={nextStep}
-              onBack={handleBackStep}
             >
     
               <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-4">
@@ -432,17 +428,12 @@ export default function Home() {
             ))}
           </div>
             </FormCard>
-          )}
 
 
-          {step === 3 && (
             <FormCard
-              stepText="passo 4"
               title="Detalhes finais"
-              buttonLabel="Proximo passo"
-              icon={<FaAngleLeft className=" text-blue-dark" />}
-              onSubmit={nextStep}
-              onBack={handleBackStep}
+              buttonLabel={'Salvar'}
+              onSubmit={handleSave}
             >
               <div>
                 <Label>URL do convite</Label>
@@ -536,108 +527,7 @@ export default function Home() {
                 
               </div>
             </FormCard>
-          )}
 
-          {step === 4 && (
-            
-            <FormCard
-              stepText="Passo Final"
-              title={isLogin ? "Login" : "Cadastro"}
-              buttonLabel={isLogin ? "Entrar" : "Criar Conta"}
-              icon={<FaAngleLeft className="text-blue-dark" />}
-              onSubmit={handleFinish}
-              onBack={handleBackStep}
-              footer={
-                <div className="flex justify-center gap-2 text-sm">
-                  <p className="text-black">
-                    {isLogin ? "Não possui uma conta?" : "Já possui uma conta?"}
-                  </p>
-                  <button
-                    onClick={toggleIsLogin}
-                    type="button"
-                    className="text-pink font-semibold"
-                  >
-                    {isLogin ? "Cadastre-se" : "Entrar"}
-                  </button>
-                </div>
-              }
-            >
-              {/* Se for cadastro, mostra campo Nome */}
-              {!isLogin && (
-                <div>
-                  <Label>Nome</Label>
-                  <div className="relative">
-                    <Input id="username" 
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="Nome de usuário" type="text" />
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2 px-3.5 py-3">
-                      <UserIcon className="size-6" />
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Email (sempre mostra) */}
-              <div>
-                <Label>Email</Label>
-                <div className="relative">
-                  <Input id="email" 
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="info@gmail.com" type="email" />
-                  <span className="absolute right-0 top-1/2 -translate-y-1/2 px-3.5 py-3">
-                    <EnvelopeIcon className="size-6" />
-                  </span>
-                </div>
-              </div>
-
-              {/* Senha (sempre mostra) */}
-              <div>
-                <Label>Senha</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Digite sua senha"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 px-3.5 py-3"
-                  >
-                    {/* Colocar o ícone do olho aqui */}
-                  </button>
-                </div>
-              </div>
-
-              {/* Se for cadastro, mostra Confirmar Senha */}
-              {!isLogin && (
-                <div>
-                  <Label>Confirmar Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Confirme sua senha"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 px-3.5 py-3"
-                    >
-                      {/* ícone de olho aqui também */}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </FormCard>
-
-        )}
         </div>
       </section>
     </>

@@ -1,13 +1,15 @@
 import Button from "../ui/button/Button";
 import casamento from "../../../casamento-.png";
+import { useNavigate } from "react-router";
 
-const CardConvite = () => {
+const CardConvite = ({ data }) => {
+  const navigate = useNavigate();
   return (
     <div className="grid grid-cols-3 bg-white rounded-2xl shadow-md overflow-hidden p-4 w-full max-w-3xl">
       {/* Imagem */}
       <div className="h-full">
         <img
-          src={casamento}
+          src={data.main_image}
           alt="Imagem do convite"
           className="object-cover w-full h-full rounded-md"
         />
@@ -17,7 +19,7 @@ const CardConvite = () => {
       <div className="col-span-2 flex flex-col justify-between p-4">
         {/* Título e status */}
         <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-bold">João & Maria</h2>
+          <h2 className="text-2xl font-bold">{data.title}</h2>
           <span className="text-xs w-12 text-center bg-pink-500 text-white rounded-md px-2 py-1">
             Ativo
           </span>
@@ -27,16 +29,16 @@ const CardConvite = () => {
         <div className="flex justify-between text-gray-500 text-sm my-4">
           <div className="flex flex-col items-center">
             <span>Confirmações</span>
-            <span className="text-black text-xl font-bold">11</span>
+            <span className="text-black text-xl font-bold">{data?.confirmations || 0}</span>
           </div>
           <div className="flex flex-col items-center">
             <span>Recebidos</span>
-            <span className="text-black text-xl font-bold">2</span>
+            <span className="text-black text-xl font-bold">{data?.gifts || 0}</span>
           </div>
         </div>
 
         {/* Botão Editar */}
-        <Button className="text-white font-bold py-2 rounded-xl">
+        <Button className="text-white font-bold py-2 rounded-xl" onClick={() => navigate('/admin/convites/' + data.id)}>
           Editar
         </Button>
       </div>
