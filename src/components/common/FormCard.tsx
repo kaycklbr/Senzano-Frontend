@@ -6,12 +6,13 @@ interface FormCardProps {
   title: string;
   children: React.ReactNode;
   buttonLabel?: string;
+  buttonLoading?: boolean;
   onSubmit?: () => void;
   icon?: React.ReactNode;
   footer?: React.ReactNode;
   onBack?: () => void;
 }
-const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', onSubmit, icon, footer, onBack }: FormCardProps) => {
+const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', buttonLoading = false, onSubmit, icon, footer, onBack }: FormCardProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault(); 
     if (onSubmit) onSubmit(e);
@@ -45,6 +46,7 @@ const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', o
           
           <Button 
             type="submit"
+            loading={buttonLoading}
             className="flex-1"
           >
             {buttonLabel}

@@ -1,17 +1,41 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import logo from "../../../logo.png"
+import Button from "../ui/button/Button";
+import { errorControl } from "../../services/utils";
+import { toast } from "react-toastify";
+import { register } from "../../auth/auth";
+import { AuthContext } from "../../context/AuthProvider";
 
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [ loading, setLoading ] = useState(false);
+  const [ name, setName ] = useState('');
+  const [ email, setEmail ] = useState('');
+  const [ password, setPassword ] = useState('');
+
+  const { login } = useContext(AuthContext);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try{
+      const { data } = await register(name, email, password);
+      await login(email, password);
+    }catch(e){
+      toast(errorControl(e) || 'Erro ao cadastrar. Tente novamente mais tarde.', { type: 'error'});
+    }finally{
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
+    <div className="flex flex-col flex-1">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <Link to="/" className="self-center mb-10 mt-5">
           <img
@@ -44,6 +68,8 @@ export default function SignUpForm() {
                   <Input
                     type="text"
                     id="fname"
+                    value={name}
+                    onChange={e => setName(e.currentTarget.value)}
                     name="fname"
                     placeholder="Digite seu nome"
                   />
@@ -55,6 +81,8 @@ export default function SignUpForm() {
                   <Input
                     type="email"
                     id="email"
+                    value={email}
+                    onChange={e => setEmail(e.currentTarget.value)}
                     name="email"
                     placeholder="Digite seu email"
                   />
@@ -62,11 +90,13 @@ export default function SignUpForm() {
                 {/* <!-- Password --> */}
                 <div>
                   <Label>
-                    Password<span className="text-error-500">*</span>
+                    Senha<span className="text-error-500">*</span>
                   </Label>
                   <div className="relative">
                     <Input
                       placeholder="Digite sua senha"
+                      value={password}
+                      onChange={e => setPassword(e.currentTarget.value)}
                       type={showPassword ? "text" : "password"}
                     />
                     <span
@@ -101,9 +131,9 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                  <Button onClick={handleSave} loading={loading} className="w-full">
                     Cadastrar
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>

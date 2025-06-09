@@ -32,7 +32,8 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           <Route element={<ClientLayout />}>
-            <Route index path="" element={<ClientHome />} />
+            <Route index path="" element={<Navigate to="/admin" />} />
+            <Route path="/criar-convite" element={<ClientHome />} />
           </Route>
 
           {/* Dashboard Layout */}

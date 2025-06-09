@@ -1,7 +1,7 @@
 import PageMeta from "../../components/common/PageMeta";
 
 import Input from "../../components/form/input/InputField";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import FormCard from "../../components/common/FormCard";
 import Label from "../../components/form/Label";
@@ -11,13 +11,15 @@ import { UserIcon } from "../../icons";
 
 import Switch from "../../components/form/switch/Switch";
 
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { FaAngleLeft } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
 import api from "../../services/api";
-import { login, setTokens } from "../../auth/auth";
 import { toast } from "react-toastify";
+import { AuthContext } from "../../context/AuthProvider";
+import { register } from "../../auth/auth";
+import { errorControl } from "../../services/utils";
 // import Input from "../../components/form/form-elements/DefaultInputs"
 export default function Home() {
   const [step, setStep] = useState(0);
@@ -29,8 +31,8 @@ export default function Home() {
   const [isPartyActive, setIsPartyActive] = useState(true);
   const [images, setImages] = useState<{ file: File; url: string }[]>([]);
   const [ name, setName ] = useState();
-  const [ email, setEmail ] = useState();
-  const [ password, setPassword ] = useState();
+  const [ email, setEmail ] = useState<string>('');
+  const [ password, setPassword ] = useState<string>('');
   const [ confirmPassword, setConfirmPassword ] = useState();
 
   function handleAddField() {
@@ -105,7 +107,9 @@ export default function Home() {
     setStep(prev => prev - 1);
   }
   
-  
+  const searchParams: any = useSearchParams();
+
+  const [ loading, setLoading ] = useState<boolean>(false);
 
   const [ state, setState ] = useState({
     title: '',
@@ -126,7 +130,8 @@ export default function Home() {
     observations: '',
     owner_instagram: '',
     background_music: '',
-    start_background_music: ''
+    start_background_music: 0,
+    template_id: searchParams?.template || null
   });
 
 
@@ -136,7 +141,13 @@ export default function Home() {
     setState(prev => ({...prev, [name]: value}));
   }
 
+  const navigate = useNavigate();
+
+  const { login } = useContext(AuthContext);
+
   const handleFinish = async () => {
+
+    setLoading(true);
 
     const data = {...state};
     data.owner_instagram = instagramFields.join(',');
@@ -154,25 +165,27 @@ export default function Home() {
 
 
     try{
-      const loginData = await login(email, password);
 
-      if(!loginData.success){
-        throw new Error(loginData.message);
+      if(!isLogin){
+        await register(name, email, password);
       }
 
-      toast('Login realizado com sucesso!', { type: 'success' });
+      const loginData = await login(email, password);
 
-      setTokens({ access_token: loginData.data.token })
+      toast('Criando convite! Aguarde...', { type: 'success' });
 
       const response = await api.post('convitin/v1/convites', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      console.log(response.data)
+
+      navigate('/admin/convites');
 
     }catch(e){
-      toast(e.message, { type: 'error' });
+      toast(errorControl(e) || 'Erro ao criar convite, tente novamente.', { type: 'error' });
+    }finally{
+      setLoading(false);
     }
 
   }
@@ -198,7 +211,7 @@ export default function Home() {
                   <Input
                     type="text"
                     name="title"
-                    
+                    required
                     value={state.title}
                     onChange={setValue}
                     placeholder="João e Maria, M & H, ..."
@@ -220,7 +233,7 @@ export default function Home() {
                     id="demo-upload"
                   >
                     {/* Hidden Input */}
-                    <input {...getMainInputProps()} />
+                    <input {...getMainInputProps()} required />
 
                     <div className="dz-message flex flex-col items-center m-0!">
                       {/* Icon Container */}
@@ -265,6 +278,7 @@ export default function Home() {
                   <Input
                     type="date"
                     name="event_date"
+                    required
                     value={state.event_date}
                     onChange={setValue}
                     placeholder="Selecione a data"
@@ -275,6 +289,7 @@ export default function Home() {
                   <Label htmlFor="eventPhrase">Frase inicial</Label>
                   <Input
                     type="text"
+                    required
                     name="description"
                     value={state.description}
                     onChange={setValue}
@@ -304,6 +319,7 @@ export default function Home() {
                   <Input
                     type="date"
                     name="ceremony_date"
+                    required={state.enable_ceremony}
                     value={state.ceremony_date}
                     onChange={setValue}
                     disabled={!state.enable_ceremony}
@@ -314,17 +330,19 @@ export default function Home() {
                   <Label htmlFor="tm">Hora do evento</Label>
                   <Input type="time" id="tm" 
                     name="ceremony_time" 
+                    required={state.enable_ceremony}
                     onChange={setValue} 
                     value={state.ceremony_time}
                     disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+              <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
               <Label htmlFor="fulladdress">Endereço</Label>
               <Input
                 type="text"
                 name="ceremony_address"
+                required={state.enable_ceremony}
                 value={state.ceremony_address}
                 onChange={setValue} 
                 disabled={!state.enable_ceremony}
@@ -345,21 +363,24 @@ export default function Home() {
                     type="date"
                     name="party_date"
                     value={state.party_date}
+                    required={state.enable_party}
                     onChange={setValue}
                     placeholder="Selecione a data"
+                    disabled={!state.enable_party}
                     />
                 </div>
                 <div>
                   <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm" name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
+                  <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+              <Input type="text" id="address" required={state.enable_party} name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
               <Label htmlFor="fulladdress">Endereço</Label>
               <Input
                 type="text"
                 id="fullAddress"
+                required={state.enable_party}
                 name="party_address" value={state.party_address}
                 onChange={setValue}
                 disabled={!state.enable_party}
@@ -456,13 +477,14 @@ export default function Home() {
                     name="slug"
                     value={state.slug}
                     className="rounded-l-none"
+                    required
                     onChange={setValue}
                     placeholder="joao-e-maria"
                   />
                 </div>
               </div>
               <div>
-                <Label>Dress Code</Label>
+                <Label>Dress Code <small className="text-pink">(opcional)</small></Label>
                 <Input
                   type="text"
                   id="dressCode"
@@ -473,12 +495,12 @@ export default function Home() {
                 />
               </div>
               <div>
-                <Label>Observações</Label>
+                <Label>Observações <small className="text-pink">(opcional)</small></Label>
                 <Input type="text" id="observations" value={state.observations} name="observations"
                   onChange={setValue} placeholder="Vá de uber" />
               </div>
               <div>  
-                <Label>Instagram dos organizadores</Label>
+                <Label>Instagram dos organizadores <small className="text-pink">(opcional)</small></Label>
                 <div className="flex flex-col gap-2">
                   {instagramFields.map((value, index) => (
                       <Input
@@ -519,7 +541,7 @@ export default function Home() {
                 </div>
               </div> 
               <div> 
-                <Label>Música de fundo (YouTube)</Label>
+                <Label>Música de fundo (YouTube) <small className="text-pink">(opcional)</small></Label>
                 <Input
                   type="text"
                   id="music"
@@ -530,7 +552,7 @@ export default function Home() {
                 />
               </div>
               <div>
-                <Label>Iniciar música no segundo</Label>
+                <Label>Iniciar música no segundo <small className="text-pink">(opcional)</small></Label>
                 <Input type="text" value={state.start_background_music} name="start_background_music"
                   onChange={setValue} id="musicSegundo" placeholder="46" />
                 
@@ -544,6 +566,7 @@ export default function Home() {
               stepText="Passo Final"
               title={isLogin ? "Login" : "Cadastro"}
               buttonLabel={isLogin ? "Entrar" : "Criar Conta"}
+              buttonLoading={loading}
               icon={<FaAngleLeft className="text-blue-dark" />}
               onSubmit={handleFinish}
               onBack={handleBackStep}

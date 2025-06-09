@@ -20,8 +20,8 @@ const CardConvite = ({ data }) => {
         {/* Título e status */}
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold">{data.title}</h2>
-          <span className="text-xs w-12 text-center bg-pink-500 text-white rounded-md px-2 py-1">
-            Ativo
+          <span className={"text-xs self-start text-center text-white rounded-md px-2 py-1 " + (data.status == 'publish' ? 'bg-pink-500' : 'bg-brand-500')}>
+            {data.status == 'publish' ? 'Ativo' : 'Rascunho'}
           </span>
         </div>
 

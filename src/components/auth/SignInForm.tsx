@@ -15,15 +15,20 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
+  const [ loading, setLoading ] = useState(false);
 
   const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try{
       await login(email, password);
+      toast('Logado com sucesso!', { type: 'success' })
     }catch(e){
       toast(e.response.data.message, { type: 'error'});
+    }finally{
+      setLoading(false);
     }
   }
   return (
@@ -97,7 +102,7 @@ export default function SignInForm() {
                   </Link>
                 </div> */}
                 <div>
-                  <Button type="submit" className="w-full" size="sm">
+                  <Button type="submit" loading={loading} className="w-full" size="sm">
                     Entrar
                   </Button>
                 </div>

@@ -6,20 +6,20 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import FormCard from "./FormCard";
 import Label from "../../components/form/Label";
 import DatePicker from "../../components/form/date-picker";
-import { EnvelopeIcon } from "../../icons";
+import { EnvelopeIcon, TimeIcon } from "../../icons";
 import { UserIcon } from "../../icons";
 
 import Switch from "../../components/form/switch/Switch";
 
-import { Link, useParams } from "react-router";
-import { FaAngleLeft } from "react-icons/fa6";
+import { Link, useNavigate, useParams } from "react-router";
+import { FaAngleLeft, FaX } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
 import api from "../../services/api";
 import { login, setTokens } from "../../auth/auth";
 import { toast } from "react-toastify";
 // import Input from "../../components/form/form-elements/DefaultInputs"
-export default function ConviteDetails() {
+export default function ConviteDetails({ isEdit }) {
   const [step, setStep] = useState(0);
   const [parent] = useAutoAnimate();
   const [isLogin, setIsLogin] = useState(false);
@@ -28,10 +28,13 @@ export default function ConviteDetails() {
   const [isCeremonyActive, setIsCeremonyActive] = useState(true);
   const [isPartyActive, setIsPartyActive] = useState(true);
   const [images, setImages] = useState<{ file: File; url: string }[]>([]);
+  const [templates, setTemplates] = useState([]);
   const [ name, setName ] = useState();
   const [ email, setEmail ] = useState();
   const [ password, setPassword ] = useState();
   const [ confirmPassword, setConfirmPassword ] = useState();
+  const [ loading, setLoading ] = useState<boolean>(false);
+  const [ saveLoading, setSaveLoading ] = useState<boolean>(false);
 
   function handleAddField() {
     setInstagramFields([...instagramFields, ""]);
@@ -130,20 +133,29 @@ export default function ConviteDetails() {
   });
 
   const params = useParams();
+  const fetchConvite = async () => {
+    setLoading(true);
+    try{
+      const { data } = await api.get('convitin/v1/convites/'+params.id);
+      setState(data);
+      setMainImage(data.main_image);
+      setImages(data.gallery);
+      setInstagramFields(data.owner_instagram.split(','))
+    }catch(e){
+      
+    }finally{
+      setLoading(false);
+    }
+  }
   useEffect(() => {
-    const fetchConvite = async () => {
-      try{
-        const { data } = await api.get('convitin/v1/convites/'+params.id);
-        setState(data);
-        setMainImage(data.main_image);
-        setImages(data.gallery);
-        setInstagramFields(data.owner_instagram.split(','))
-      }catch(e){
 
-      }
+    const fetchTemplate = async () => {
+      const { data } = await api.get('convitin/v1/templates');
+      setTemplates(data);
     }
 
-    fetchConvite();
+    fetchTemplate();
+    isEdit && fetchConvite();
   }, []);
 
   const setValue = (event: any) => {
@@ -152,8 +164,14 @@ export default function ConviteDetails() {
     setState(prev => ({...prev, [name]: value}));
   }
 
-  const handleSave = async () => {
+  const removeItem = (indexToRemove) => {
+    setImages(prevItems => prevItems.filter((_, index) => index !== indexToRemove));
+  };
 
+  const navigate = useNavigate();
+
+  const handleSave = async () => {
+    setSaveLoading(true);
     const data = {...state};
     data.owner_instagram = instagramFields.join(',');
 
@@ -162,42 +180,103 @@ export default function ConviteDetails() {
       formData.append(key, value);
     });
 
-    formData.append('main_image', mainImage.file);
-    
+    if(mainImage?.id){
+      formData.delete('main_image');
+    }else{
+      formData.set('main_image', mainImage.file);
+    }
+
+
+    formData.delete('gallery');
     for(let img of images){
-      formData.append('gallery[]', img.file);
+      if(img?.id){
+        formData.append('existing_gallery[]', img.id);
+      }else{
+        formData.append('gallery[]', img.file);
+      }
     }
 
 
     try{
-      const loginData = await login(email, password);
+      if(isEdit){
+        const response = await api.post('convitin/v1/convites/edit/'+params.id, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        toast('Convite atualizado com sucesso!', { type: 'success' });
+      }else{
+        const response = await api.post('convitin/v1/convites', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        toast('Convite criado com sucesso!', { type: 'success' });
+        navigate('/admin/convites/'+response.data.id);
 
-      if(!loginData.success){
-        throw new Error(loginData.message);
       }
 
-      toast('Login realizado com sucesso!', { type: 'success' });
-
-      setTokens({ access_token: loginData.data.token })
-
-      const response = await api.post('convitin/v1/convites', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      console.log(response.data)
+      await fetchConvite();
 
     }catch(e){
       toast(e.message, { type: 'error' });
+    }finally{
+      setSaveLoading(false);
     }
 
   }
 
+  if(loading){
+    return <div role="status">
+        <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+        </svg>
+        <span className="sr-only">Loading...</span>
+    </div>
+  }
+
   return (
     <>
-      <section className="h-full md:h-auto flex items-center justify-center w-full">
-          <div ref={parent} className="w-full h-full bg-white 
-          md:h-auto md:rounded-xl md:shadow-md
+      <section className="h-full md:h-auto flex flex-col items-center justify-center w-full">
+          <div className="w-full h-full bg-white 
+          md:h-auto rounded-xl shadow-md
+          p-4">
+
+            <div>
+                <Switch label={"Ativar convite"} color="pink" defaultChecked={state.status == 'publish'}
+                  onChange={(v) => setValue({currentTarget: {name: 'status', value: !!v ? 'publish' : 'draft'}})}  />
+              </div>
+
+          </div>
+
+          <div className="w-full h-full mt-3 bg-white 
+          md:h-auto rounded-xl shadow-md
+          p-4">
+            <FormCard
+                title="Modelos"
+                buttonLabel={null}
+              >
+                <div className="flex gap-3 overflow-x-auto">
+                  {templates.map((t, index) => (
+                    <div key={'template_' + index} className="flex flex-col items-center min-w-[100px] max-w-[120px] min-h-[140px] ">
+                      <img
+                        src={t.main_image}
+                        className="object-cover w-[100px] h-[140px] rounded-md border-1 border-gray-300"
+                      />
+                      <h5 className="text-sm text-black font-bold text-center">{t.title}</h5>
+                      <div onClick={() => setState(prev => ({...prev, template_id: t.id}))} className={"cursor-pointer py-1 px-2 text-white text-xs rounded-2xl transition-colors " + (state.template_id == t.id ? 'bg-brand-500' : 'bg-pink-300 hover:bg-pink-400')}>
+                        {state.template_id == t.id ? 'Selecionado' : 'Selecionar'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </FormCard>
+
+          </div>
+
+          <div ref={parent} className="w-full h-full mt-3 bg-white 
+          md:h-auto rounded-xl shadow-md
           p-4">
               <FormCard
                 title="Informações do Convite"
@@ -208,7 +287,7 @@ export default function ConviteDetails() {
                   <Input
                     type="text"
                     name="title"
-                    
+                    required
                     value={state.title}
                     onChange={setValue}
                     placeholder="João e Maria, M & H, ..."
@@ -230,7 +309,7 @@ export default function ConviteDetails() {
                     id="demo-upload"
                   >
                     {/* Hidden Input */}
-                    <input {...getMainInputProps()} />
+                    <input {...getMainInputProps()} required />
 
                     <div className="dz-message flex flex-col items-center m-0!">
                       {/* Icon Container */}
@@ -275,6 +354,7 @@ export default function ConviteDetails() {
                   <Input
                     type="date"
                     name="event_date"
+                    required
                     value={state.event_date}
                     onChange={setValue}
                     placeholder="Selecione a data"
@@ -286,6 +366,7 @@ export default function ConviteDetails() {
                   <Input
                     type="text"
                     name="description"
+                    required
                     value={state.description}
                     onChange={setValue}
                     placeholder="Venha celebrar conosco nessa festa..."
@@ -308,6 +389,7 @@ export default function ConviteDetails() {
                     type="date"
                     name="ceremony_date"
                     value={state.ceremony_date}
+                    required={state.enable_ceremony}
                     onChange={setValue}
                     disabled={!state.enable_ceremony}
                     placeholder="Selecione a data"
@@ -317,17 +399,19 @@ export default function ConviteDetails() {
                   <Label htmlFor="tm">Hora do evento</Label>
                   <Input type="time" id="tm" 
                     name="ceremony_time" 
+                    required={state.enable_ceremony}
                     onChange={setValue} 
                     value={state.ceremony_time}
                     disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+              <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
               <Label htmlFor="fulladdress">Endereço</Label>
               <Input
                 type="text"
                 name="ceremony_address"
+                required={state.enable_ceremony}
                 value={state.ceremony_address}
                 onChange={setValue} 
                 disabled={!state.enable_ceremony}
@@ -348,21 +432,24 @@ export default function ConviteDetails() {
                     type="date"
                     name="party_date"
                     value={state.party_date}
+                    required={state.enable_party}
                     onChange={setValue}
                     placeholder="Selecione a data"
+                    disabled={!state.enable_party}
                     />
                 </div>
                 <div>
                   <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm" name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
+                  <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
               <Label htmlFor="address">Local </Label>
-              <Input type="text" id="address" name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+              <Input type="text" id="address" required={state.enable_party} name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
               <Label htmlFor="fulladdress">Endereço</Label>
               <Input
                 type="text"
                 id="fullAddress"
+                required={state.enable_party}
                 name="party_address" value={state.party_address}
                 onChange={setValue}
                 disabled={!state.enable_party}
@@ -418,7 +505,10 @@ export default function ConviteDetails() {
 
             {/* Imagens adicionadas */}
             {images.map((imgObj, index) => (
-              <div key={index} className="w-full aspect-square  rounded-md overflow-hidden border-2 border-gray-300">
+              <div key={'gallery_' + index} className="relative w-full aspect-square  rounded-md overflow-hidden border-2 border-gray-300">
+                <div onClick={() =>removeItem(index)} className="cursor-pointer w-5 h-5 bg-[#000000AB] absolute top-0.5 right-0.5 flex items-center justify-center rounded-4xl">
+                  <FaX className="text-white text-xs"/>
+                </div>
                 <img
                   src={imgObj.url}
                   alt={`Foto ${index}`}
@@ -433,6 +523,7 @@ export default function ConviteDetails() {
             <FormCard
               title="Detalhes finais"
               buttonLabel={'Salvar'}
+              buttonLoading={saveLoading}
               onSubmit={handleSave}
             >
               <div>
@@ -446,6 +537,7 @@ export default function ConviteDetails() {
                   <Input
                     name="slug"
                     value={state.slug}
+                    required
                     className="rounded-l-none"
                     onChange={setValue}
                     placeholder="joao-e-maria"
@@ -453,7 +545,7 @@ export default function ConviteDetails() {
                 </div>
               </div>
               <div>
-                <Label>Dress Code</Label>
+                <Label>Dress Code <small className="text-pink">(opcional)</small></Label>
                 <Input
                   type="text"
                   id="dressCode"
@@ -464,12 +556,12 @@ export default function ConviteDetails() {
                 />
               </div>
               <div>
-                <Label>Observações</Label>
+                <Label>Observações <small className="text-pink">(opcional)</small></Label>
                 <Input type="text" id="observations" value={state.observations} name="observations"
                   onChange={setValue} placeholder="Vá de uber" />
               </div>
               <div>  
-                <Label>Instagram dos organizadores</Label>
+                <Label>Instagram dos organizadores <small className="text-pink">(opcional)</small></Label>
                 <div className="flex flex-col gap-2">
                   {instagramFields.map((value, index) => (
                       <Input
@@ -510,7 +602,7 @@ export default function ConviteDetails() {
                 </div>
               </div> 
               <div> 
-                <Label>Música de fundo (YouTube)</Label>
+                <Label>Música de fundo (YouTube) <small className="text-pink">(opcional)</small></Label>
                 <Input
                   type="text"
                   id="music"
@@ -521,7 +613,7 @@ export default function ConviteDetails() {
                 />
               </div>
               <div>
-                <Label>Iniciar música no segundo</Label>
+                <Label>Iniciar música no segundo <small className="text-pink">(opcional)</small></Label>
                 <Input type="text" value={state.start_background_music} name="start_background_music"
                   onChange={setValue} id="musicSegundo" placeholder="46" />
                 

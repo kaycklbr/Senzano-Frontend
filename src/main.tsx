@@ -15,7 +15,7 @@ createRoot(document.getElementById("root")!).render(
       <AppWrapper>
         <AuthProvider>
           <App />
-          <ToastContainer />
+          <ToastContainer className={"z-50"} />
         </AuthProvider>
       </AppWrapper>
     </ThemeProvider>

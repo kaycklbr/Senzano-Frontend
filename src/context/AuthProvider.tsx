@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: Props) => {
     });
 
     setToken(data.data.token);
+    return data;
     // setUser(data.user);
   };
 
