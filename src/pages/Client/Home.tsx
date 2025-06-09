@@ -11,7 +11,7 @@ import { UserIcon } from "../../icons";
 
 import Switch from "../../components/form/switch/Switch";
 
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { FaAngleLeft } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
@@ -106,8 +106,9 @@ export default function Home() {
   function handleBackStep() {
     setStep(prev => prev - 1);
   }
+
   
-  const searchParams: any = useSearchParams();
+  const searchParams: any = new URLSearchParams(useLocation().search);
 
   const [ loading, setLoading ] = useState<boolean>(false);
 
@@ -131,7 +132,7 @@ export default function Home() {
     owner_instagram: '',
     background_music: '',
     start_background_music: 0,
-    template_id: searchParams?.template || null
+    template_id: searchParams.get('template') || ''
   });
 
 
@@ -336,9 +337,9 @@ export default function Home() {
                     disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
-              <Label htmlFor="address">Local </Label>
+              <Label htmlFor="address">Nome do Local </Label>
               <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-              <Label htmlFor="fulladdress">Endereço</Label>
+              <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
               <Input
                 type="text"
                 name="ceremony_address"
@@ -374,9 +375,9 @@ export default function Home() {
                   <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
-              <Label htmlFor="address">Local </Label>
+              <Label htmlFor="address">Nome do Local </Label>
               <Input type="text" id="address" required={state.enable_party} name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-              <Label htmlFor="fulladdress">Endereço</Label>
+              <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
               <Input
                 type="text"
                 id="fullAddress"

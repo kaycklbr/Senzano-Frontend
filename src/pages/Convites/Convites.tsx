@@ -3,6 +3,7 @@ import { PlusIcon } from "../../icons";
 import api from "../../services/api";
 import CardConvite from "../../components/form/CardConvite";
 import Button from "../../components/ui/button/Button";
+import { useNavigate } from "react-router";
 
 const Convites = () => {
 
@@ -21,14 +22,16 @@ const Convites = () => {
         fetchInvites()
     }, [])
 
+    const navigate = useNavigate();
+
 
     return (
         <div className=" gap-4">
             <div className="flex items-center gap-3">
-                <h2>Covites</h2>
-                <Button size="sm" className="bg-pink"><PlusIcon /> Novo convite</Button>
+                <h1 className="text-lg font-bold">Convites</h1>
+                <Button onClick={() => navigate('/admin/convites/criar')} size="sm" className="bg-pink"><PlusIcon /> Novo convite</Button>
             </div>
-            <div className="flex flex-col md:flex-row md:grid md:grid-cols-2 gap-4">
+            <div className="mt-3 flex flex-col md:flex-row md:grid md:grid-cols-2 gap-4">
                 {invites.map((data) => {
                     return <CardConvite data={data}/>
 

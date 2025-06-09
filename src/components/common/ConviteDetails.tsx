@@ -12,7 +12,7 @@ import { UserIcon } from "../../icons";
 import Switch from "../../components/form/switch/Switch";
 
 import { Link, useNavigate, useParams } from "react-router";
-import { FaAngleLeft, FaX } from "react-icons/fa6";
+import { FaAngleLeft, FaLink, FaLinkSlash, FaShapes, FaShare, FaX } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
 import api from "../../services/api";
@@ -129,7 +129,8 @@ export default function ConviteDetails({ isEdit }) {
     observations: '',
     owner_instagram: '',
     background_music: '',
-    start_background_music: ''
+    start_background_music: '',
+    status: 'publish'
   });
 
   const params = useParams();
@@ -172,8 +173,13 @@ export default function ConviteDetails({ isEdit }) {
 
   const handleSave = async () => {
     setSaveLoading(true);
+    if(!state?.template_id){
+      toast('Selecione um modelo para salvar', { type: 'error' });
+      return;
+    }
     const data = {...state};
     data.owner_instagram = instagramFields.join(',');
+
 
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
@@ -244,6 +250,12 @@ export default function ConviteDetails({ isEdit }) {
           p-4">
 
             <div>
+              {(state.status == 'publish' && state?.url && !state.url.includes('page_id=')) && <div className="flex items-center justify-between bg-brand-200 rounded-2xl p-3 mb-3 text-sm text-brand-600">
+                <a href={state.url} target={'_blank'} className="font-semibold underline">
+                {state?.url}
+                </a>
+                <FaShare/>
+              </div>}
                 <Switch label={"Ativar convite"} color="pink" defaultChecked={state.status == 'publish'}
                   onChange={(v) => setValue({currentTarget: {name: 'status', value: !!v ? 'publish' : 'draft'}})}  />
               </div>
@@ -271,6 +283,29 @@ export default function ConviteDetails({ isEdit }) {
                     </div>
                   ))}
                 </div>
+              </FormCard>
+
+          </div>
+
+          <div className="w-full h-full mt-3 bg-white 
+          md:h-auto rounded-xl shadow-md
+          p-4">
+            <FormCard
+                title="Lista de presentes"
+                buttonLabel={null}
+              >
+                <Switch label={"Ativar"} color="pink" defaultChecked={state.enable_gift}
+                  onChange={(v) => setValue({currentTarget: {name: 'enable_gift', value: v}})}  />
+
+                  <Label>Link da lista</Label>
+                  <Input
+                    type="text"
+                    name="gift_link"
+                    required
+                    value={state.gift_link}
+                    onChange={setValue}
+                    placeholder="https://..."
+                  />
               </FormCard>
 
           </div>
@@ -405,9 +440,9 @@ export default function ConviteDetails({ isEdit }) {
                     disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
-              <Label htmlFor="address">Local </Label>
+              <Label htmlFor="address">Nome do Local </Label>
               <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-              <Label htmlFor="fulladdress">Endereço</Label>
+              <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
               <Input
                 type="text"
                 name="ceremony_address"
@@ -443,9 +478,9 @@ export default function ConviteDetails({ isEdit }) {
                   <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
                 </div>
               </div>
-              <Label htmlFor="address">Local </Label>
+              <Label htmlFor="address">Nome do Local </Label>
               <Input type="text" id="address" required={state.enable_party} name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-              <Label htmlFor="fulladdress">Endereço</Label>
+              <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
               <Input
                 type="text"
                 id="fullAddress"
