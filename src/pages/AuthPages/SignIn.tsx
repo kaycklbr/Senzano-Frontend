@@ -7,10 +7,6 @@ import { Navigate } from "react-router";
 
 export default function SignIn() {
 
-  const { authenticated } = useContext(AuthContext);
-
-  if(authenticated) return <Navigate to="/admin" replace />
-
   return (
     <>
       <PageMeta title={"Convitin"} description="Crie seu convite" />

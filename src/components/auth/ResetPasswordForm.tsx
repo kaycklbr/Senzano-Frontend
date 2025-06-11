@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Link, Navigate } from "react-router";
+import { Link } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -8,26 +8,31 @@ import Button from "../ui/button/Button";
 import logo from "../../../logo.png"
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthProvider";
+import { errorControl } from "../../services/utils";
+import api from "../../services/api";
 
 
-export default function SignInForm() {
-
-  const { login } = useContext(AuthContext);
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
-  const [ email, setEmail ] = useState('');
+export default function ResetPasswordForm({ login: email, auth_key: key }) {
+  const [ showPassword, setShowPassword ] = useState(false);
   const [ password, setPassword ] = useState('');
   const [ loading, setLoading ] = useState(false);
+
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try{
+      await api.post('convitin/v1/reset', {
+        login: email,
+        key,
+        password
+      });
+
       await login(email, password);
-      toast('Logado com sucesso!', { type: 'success' })
+      toast('Senha atualizada com sucesso!', { type: 'success' })
     }catch(e){
-      toast(e.response.data.message, { type: 'error'});
+      toast(errorControl(e), { type: 'error'});
     }finally{
       setLoading(false);
     }
@@ -51,30 +56,31 @@ export default function SignInForm() {
         
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Entrar
+              Recuperar senha
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Acesse seus convites
+              Recupere sua senha
             </p>
           </div>
           <div>
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
-                <div>
+              <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>{" "}
+                    E-mail
                   </Label>
-                  <Input value={email} required type="email" onChange={e => setEmail(e.target.value)} placeholder="info@gmail.com" />
-                </div>
-                <div>
-                  <Label>
+                  <Input disabled value={email}/>
+
+
+                  <Label className="mt-3">
                     Senha <span className="text-error-500">*</span>{" "}
                   </Label>
+
                   <div className="relative">
                     <Input
                       value={password} required onChange={e => setPassword(e.target.value)}
                       type={showPassword ? "text" : "password"}
-                      placeholder="Digite sua senha"
+                      placeholder="Digite sua nova senha"
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -88,36 +94,10 @@ export default function SignInForm() {
                     </span>
                   </div>
                 </div>
-                {/* <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
-                    </span>
-                  </div>
-                  <Link
-                    to="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                  >
-                    Forgot password?
-                  </Link>
-                </div> */}
-                
                 <div>
                   <Button type="submit" loading={loading} className="w-full" size="sm">
-                    Entrar
+                    Atualizar senha
                   </Button>
-                  <div className="mt-2 flex justify-center">
-                    <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                      Esqueceu sua senha? {""}
-                      <Link
-                        to="/reset"
-                        className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                      >
-                        Recuperar senha
-                      </Link>
-                    </p>
-                  </div>
                 </div>
 
               </div>
@@ -125,12 +105,12 @@ export default function SignInForm() {
 
             <div className="mt-5 flex justify-center">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Não possui uma conta? {""}
+                Já possui uma conta? {""}
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Cadastre-se
+                  Entre
                 </Link>
               </p>
             </div>

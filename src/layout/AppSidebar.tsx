@@ -20,6 +20,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
+import { FaClipboardList, FaTicket } from "react-icons/fa6";
 
 type NavItem = {
   name: string;
@@ -35,19 +36,19 @@ const navItems: NavItem[] = [
   //   subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   // },
   {
-    icon: <UserCircleIcon />, // Ou outro ícone que você quiser
+    icon: <FaTicket  />, // Ou outro ícone que você quiser
     name: "Convites",
     path: "/admin/convites", // Se tiver uma rota para convites
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Perfil",
+    path: "/admin/profile",
   },
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",
   //   path: "/calendar",
-  // },
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "User Profile",
-  //   path: "/profile",
   // },
   // {
   //   name: "Forms",

@@ -1,10 +1,17 @@
 import Button from "../ui/button/Button";
 import casamento from "../../../casamento-.png";
 import { useNavigate } from "react-router";
-import { FaLink, FaShare } from "react-icons/fa6";
+import { FaArrowUpRightFromSquare, FaLink, FaShare, FaShareNodes } from "react-icons/fa6";
+import Switch from "./switch/Switch";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { errorControl } from "../../services/utils";
+import api from "../../services/api";
 
 const CardConvite = ({ data }) => {
   const navigate = useNavigate();
+
+  const [ status, setStatus ] = useState(data.status);
 
   function shareLink({ url = window.location.href, title = document.title, text = '' }) {
     if (navigator.share) {
@@ -27,6 +34,17 @@ const CardConvite = ({ data }) => {
         });
     }
 }
+  const onChangeStatus = async (v) => {
+    try{
+      const _status = !!v ? 'publish' : 'draft';
+      await api.post('convitin/v1/update-status/'+data.id, {
+        status: _status
+      })
+      setStatus(_status)
+    }catch(e){
+      toast(errorControl(e), { type: 'error'})
+    }
+  }
 
   return (
     <div className="grid grid-cols-3 bg-white rounded-2xl shadow-md overflow-hidden p-4 w-full max-w-3xl">
@@ -46,14 +64,18 @@ const CardConvite = ({ data }) => {
           {data.status == 'publish' ?
           <a href={data.slug} target="_blank" className="flex items-center gap-2 underline">
             <h2 className="text-2xl font-bold">{data.title}</h2>
-            <FaLink className="text-lg" />
+            <FaArrowUpRightFromSquare className="text-lg" />
           </a>
           :
           <h2 className="text-2xl font-bold">{data.title}</h2>
           }
-          <span className={"text-xs self-start text-center text-white rounded-md px-2 py-1 " + (data.status == 'publish' ? 'bg-pink-500' : 'bg-brand-500')}>
-            {data.status == 'publish' ? 'Ativo' : 'Rascunho'}
-          </span>
+          <div className="flex gap-2 items-center">
+            <span className={"text-xs self-start text-center text-white rounded-md px-2 py-1 " + (status == 'publish' ? 'bg-pink-500' : 'bg-brand-500')}>
+              {status == 'publish' ? 'Ativo' : 'Rascunho'}
+            </span>
+            <Switch color="pink" defaultChecked={status == 'publish'}
+                  onChange={(v) => onChangeStatus(v)}  />
+          </div>
         </div>
 
         {/* Confirmações e Recebidos */}
@@ -71,10 +93,10 @@ const CardConvite = ({ data }) => {
         {/* Botão Editar */}
         <div className="flex gap-2">
           <Button className="flex-1 text-white font-bold py-2 rounded-xl" onClick={() => navigate('/admin/convites/' + data.id)}>
-            Editar
+            Editar / Confirmações
           </Button>
           <Button className="bg-pink hover:bg-pink-600 text-white font-bold py-2 rounded-xl w-[60px]" onClick={() => shareLink({url: data.slug, title: 'Você foi convidado!'})}>
-            <FaShare />
+            <FaShareNodes />
           </Button>
         </div>
       </div>

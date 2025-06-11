@@ -1,14 +1,15 @@
 import PageMeta from "../../components/common/PageMeta";
 
 import Input from "../../components/form/input/InputField";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import FormCard from "../../components/common/FormCard";
 import Label from "../../components/form/Label";
 import DatePicker from "../../components/form/date-picker";
 import { EnvelopeIcon } from "../../icons";
 import { UserIcon } from "../../icons";
-
+import Lottie from "lottie-react";
+import CreatingAnimation from '../../icons/creating.json';
 import Switch from "../../components/form/switch/Switch";
 
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
@@ -35,6 +36,16 @@ export default function Home() {
   const [ password, setPassword ] = useState<string>('');
   const [ confirmPassword, setConfirmPassword ] = useState();
 
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots(prev => (prev.length < 3 ? prev + '.' : ''));
+    }, 500);
+
+    return () => clearInterval(interval); // limpa quando componente desmonta
+  }, []);
+
   function handleAddField() {
     setInstagramFields([...instagramFields, ""]);
   }
@@ -50,12 +61,9 @@ export default function Home() {
   }
   // const nextStep = () => setStep((prev) => prev + 1);
   const nextStep = (e: React.FormEvent) => {
-    console.log("🟢 Botão clicado - tentando ir para o próximo passo...", state);
     window.scrollTo(0, 0)
     setStep((prev) => {
-      console.log("🔄 Step anterior:", prev);
       const newStep = prev + 1;
-      console.log("✅ Novo step:", newStep);
       return newStep;
     });
   };
@@ -111,6 +119,8 @@ export default function Home() {
   const searchParams: any = new URLSearchParams(useLocation().search);
 
   const [ loading, setLoading ] = useState<boolean>(false);
+
+  const [ authSuccess, setAuthSuccess ] = useState(false);
 
   const [ state, setState ] = useState({
     title: '',
@@ -173,6 +183,7 @@ export default function Home() {
 
       const loginData = await login(email, password);
 
+      setAuthSuccess(true);
       toast('Criando convite! Aguarde...', { type: 'success' });
 
       const response = await api.post('convitin/v1/convites', formData, {
@@ -185,6 +196,7 @@ export default function Home() {
 
     }catch(e){
       toast(errorControl(e) || 'Erro ao criar convite, tente novamente.', { type: 'error' });
+      setAuthSuccess(false);
     }finally{
       setLoading(false);
     }
@@ -220,7 +232,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <Label>Foto principal</Label>
+                  <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
 
                   <div
                     {...getMainRootProps()}
@@ -638,7 +650,7 @@ export default function Home() {
               </div>
 
               {/* Se for cadastro, mostra Confirmar Senha */}
-              {!isLogin && (
+              {false && (
                 <div>
                   <Label>Confirmar Senha</Label>
                   <div className="relative">
@@ -662,8 +674,13 @@ export default function Home() {
             </FormCard>
 
         )}
+        {authSuccess && <div className="bg-white fixed top-0 left-0 w-full h-full flex flex-col items-center py-10">
+          <Lottie animationData={CreatingAnimation} className="md:w-100" loop/>
+          <h1 className="font-bold text-2xl text-center">Estamos criando seu convite,<br/>aguarde{dots}</h1>
+        </div>}
         </div>
       </section>
+
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -13,14 +13,14 @@ import { AuthContext } from "../../context/AuthProvider";
 
 
 export default function SignUpForm() {
+  const { login } = useContext(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [ loading, setLoading ] = useState(false);
   const [ name, setName ] = useState('');
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
-
-  const { login } = useContext(AuthContext);
 
   const handleSave = async () => {
     setLoading(true);

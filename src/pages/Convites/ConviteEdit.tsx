@@ -29,7 +29,7 @@ export default function ConviteEdit() {
   
   return (
     <div>
-      <PageBreadcrumb pageTitle="Editar convite" />
+      <PageBreadcrumb pageTitle={(isEdit ? 'Editar' : 'Criar') + " convite"} />
 
       <div className="md:flex">
         {isEdit && <ul className="flex md:flex-col gap-2 md:flex-wrap overflow-x-auto pb-2 md:overflow-x-hidden text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">

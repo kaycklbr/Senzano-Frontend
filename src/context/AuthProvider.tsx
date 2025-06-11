@@ -16,7 +16,7 @@ type IAuthContext = {
 }
 
 const initialValue = {
-  authenticated: !!localStorage.getItem('access_token'),
+  authenticated: !!JSON.parse(localStorage.getItem('access_token')),
   setAuthenticated: () => {},
   user: null,
   setUser: () => {},
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: Props) => {
     const loadUser = async () => {
       if(token){
         try {
-          const { data } = await api.get('/wp/v2/users/me');
+          const { data } = await api.get('/convitin/v1/me');
           setUser(data);
         } catch (err) {
           console.error('Failed to load user', err);
