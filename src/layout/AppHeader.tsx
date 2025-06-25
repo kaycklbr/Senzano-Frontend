@@ -6,6 +6,7 @@ import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
 import logo from "../../logo.png"
+import { FaWhatsapp } from "react-icons/fa6";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -99,6 +100,14 @@ const AppHeader: React.FC = () => {
             />
           </Link>
 
+          <Link 
+            to={'https://api.whatsapp.com/send/?phone=5521973016803&text=Ol%C3%A1%2C+vi+o+site+da+Convitin+e+tenho+uma+d%C3%BAvida&type=phone_number&app_absent=0'} 
+            target="_blank"
+            className="md:hidden absolute right-13 rounded-2xl bg-[#2CD46B] p-2 flex items-center gap-2 text-white text-sm">
+            <FaWhatsapp className="text-base"/>
+            <span className="hidden md:block">Suporte</span>
+          </Link>
+
           <button
             onClick={toggleApplicationMenu}
             className="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
@@ -120,17 +129,14 @@ const AppHeader: React.FC = () => {
           </button>
 
         </div>
+        
         <div
           className={`${
             isApplicationMenuOpen ? "flex" : "hidden"
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
-            {/* <!-- Dark Mode Toggler --> */}
-            {/* <ThemeToggleButton /> */}
-            {/* <!-- Dark Mode Toggler --> */}
-            {/* <NotificationDropdown /> */}
-            {/* <!-- Notification Menu Area --> */}
+            
           </div>
           {/* <!-- User Area --> */}
           <UserDropdown />

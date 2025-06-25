@@ -31,8 +31,8 @@ export default function ConviteEdit() {
     <div>
       <PageBreadcrumb pageTitle={(isEdit ? 'Editar' : 'Criar') + " convite"} />
 
-      <div className="md:flex">
-        {isEdit && <ul className="flex md:flex-col gap-2 md:flex-wrap overflow-x-auto pb-2 md:overflow-x-hidden text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
+      <div className="">
+        {isEdit && <ul className="flex md:min-w-[200px] gap-2 md:flex-wrap pb-2 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
             <li>
                 <a href="#" 
                   onClick={() => setTab('info')}
@@ -50,7 +50,7 @@ export default function ConviteEdit() {
                 </a>
             </li>
         </ul>}
-        <div className=" bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
+        <div className=" bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg flex-1">
           {tab == 'info' &&
             <ConviteDetails isEdit={isEdit} />
           }

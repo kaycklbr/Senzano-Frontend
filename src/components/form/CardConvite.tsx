@@ -1,7 +1,7 @@
 import Button from "../ui/button/Button";
 import casamento from "../../../casamento-.png";
 import { useNavigate } from "react-router";
-import { FaArrowUpRightFromSquare, FaLink, FaShare, FaShareNodes } from "react-icons/fa6";
+import { FaArrowUpRightFromSquare, FaImage, FaLink, FaShare, FaShareNodes } from "react-icons/fa6";
 import Switch from "./switch/Switch";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -50,11 +50,17 @@ const CardConvite = ({ data }) => {
     <div className="grid grid-cols-3 bg-white rounded-2xl shadow-md overflow-hidden p-4 w-full max-w-3xl">
       {/* Imagem */}
       <div className="h-full">
-        <img
-          src={data.main_image}
-          alt="Imagem do convite"
-          className="object-cover w-full h-full rounded-md"
-        />
+        {data?.main_image ?
+          <img
+            src={data.main_image}
+            alt="Imagem do convite"
+            className="object-cover w-full h-full rounded-md"
+          />
+          :
+          <div className="flex justify-center items-center w-full h-full bg-gray-100 rounded-md">
+            <FaImage className="text-3xl text-gray-300"/>
+          </div>
+        }
       </div>
 
       {/* Título e conteúdo */}

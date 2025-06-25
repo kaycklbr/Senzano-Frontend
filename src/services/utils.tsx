@@ -31,3 +31,12 @@ export const errorControl = (error: AxiosError) => {
   return error.message;
 
 }
+
+export const slugify = (text: string) => {
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           
+    .replace(/[^\w\-]+/g, '')      
+    .replace(/\-\-+/g, '-')         
+    .replace(/^-+/, '')           
+    .replace(/-+$/, ''); 
+}

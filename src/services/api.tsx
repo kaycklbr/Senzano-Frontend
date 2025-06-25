@@ -29,8 +29,8 @@ api.interceptors.response.use(
       status === 403 && code === 'jwt_auth_invalid_token';
     const isUnauthorized = status === 401;
 
-    if (isInvalidToken || isUnauthorized) {
-      // logout();
+    if ((isInvalidToken || isUnauthorized) && error.response.config.url !== 'jwt-auth/v1/token') {
+      logout();
     }
 
     return Promise.reject(error);

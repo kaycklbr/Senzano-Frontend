@@ -259,7 +259,7 @@ export default function ConviteDetails({ isEdit }) {
 
   return (
     <>
-      <section id="edit-convite" className="relative h-full md:h-auto flex flex-col items-center justify-center w-full">
+      <section id="edit-convite" className="relative h-full flex-1 md:h-auto flex flex-col items-center justify-center w-full">
         <div className="w-full h-full mt-3 bg-white 
         md:h-auto rounded-xl shadow-md
         p-4">
@@ -269,10 +269,10 @@ export default function ConviteDetails({ isEdit }) {
             >
               <div className="flex gap-3 overflow-x-auto">
                 {templates.map((t, index) => (
-                  <div key={'template_' + index} className="flex flex-col items-center min-w-[100px] max-w-[120px] min-h-[140px] ">
+                  <div key={'template_' + index} className="flex flex-col items-center min-w-[130px] max-w-[130px] min-h-[180px] ">
                     <img
                       src={t.main_image}
-                      className="object-cover w-[100px] h-[140px] rounded-md border-1 border-gray-300"
+                      className="object-cover w-[130px] h-[180px] rounded-md border-1 border-gray-300"
                     />
                     <h5 className="text-sm text-black font-bold text-center">{t.title}</h5>
                     <div onClick={() => setState(prev => ({...prev, template_id: t.id}))} className={"cursor-pointer py-1 px-2 text-white text-xs rounded-2xl transition-colors " + (state.template_id == t.id ? 'bg-brand-500' : 'bg-pink-300 hover:bg-pink-400')}>
@@ -585,7 +585,7 @@ export default function ConviteDetails({ isEdit }) {
               </div>
             </div>
             <div>
-              <Label>Dress Code <small className="text-pink">(opcional)</small></Label>
+              <Label>Dress Code <span className="text-pink">(opcional)</span></Label>
               <Input
                 type="text"
                 id="dressCode"
@@ -596,12 +596,12 @@ export default function ConviteDetails({ isEdit }) {
               />
             </div>
             <div>
-              <Label>Observações <small className="text-pink">(opcional)</small></Label>
+              <Label>Observações <span className="text-pink">(opcional)</span></Label>
               <Input type="text" id="observations" value={state.observations} name="observations"
                 onChange={setValue} placeholder="Vá de uber" />
             </div>
             <div>  
-              <Label>Instagram dos organizadores <small className="text-pink">(opcional)</small></Label>
+              <Label>Instagram dos organizadores <span className="text-pink">(opcional)</span></Label>
               <div className="flex flex-col gap-2">
                 {instagramFields.map((value, index) => (
                     <Input
@@ -642,7 +642,7 @@ export default function ConviteDetails({ isEdit }) {
               </div>
             </div> 
             <div> 
-              <Label>Música de fundo (YouTube) <small className="text-pink">(opcional)</small></Label>
+              <Label>Música de fundo (YouTube) <span className="text-pink">(opcional)</span></Label>
               <Input
                 type="text"
                 id="music"
@@ -653,7 +653,7 @@ export default function ConviteDetails({ isEdit }) {
               />
             </div>
             <div>
-              <Label>Iniciar música no segundo <small className="text-pink">(opcional)</small></Label>
+              <Label>Iniciar música no segundo <span className="text-pink">(opcional)</span></Label>
               <Input type="text" value={state.start_background_music} name="start_background_music"
                 onChange={setValue} id="musicSegundo" placeholder="46" />
               

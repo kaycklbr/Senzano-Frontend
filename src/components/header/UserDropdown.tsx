@@ -3,6 +3,7 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { Link } from "react-router";
 import { AuthContext } from "../../context/AuthProvider";
+import { FaWhatsapp } from "react-icons/fa6";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,11 +22,20 @@ export default function UserDropdown() {
     <div className="relative">
       <button
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
+        className="flex items-center gap-2 text-gray-700 dropdown-toggle dark:text-gray-400"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          {user?.avar_urls && <img src={Object.values(user.avatar_urls)[0]} alt="User" />}
-        </span>
+
+        <Link 
+          to={'https://api.whatsapp.com/send/?phone=5521973016803&text=Ol%C3%A1%2C+vi+o+site+da+Convitin+e+tenho+uma+d%C3%BAvida&type=phone_number&app_absent=0'} 
+          target="_blank"
+          className="hidden md:flex rounded-2xl bg-[#2CD46B] p-2 items-center gap-2 text-white text-sm">
+          <FaWhatsapp className="text-base"/>
+          <span className="hidden md:block">Suporte</span>
+        </Link>
+
+        {user?.avatar_urls && <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
+           <img src={Object.values(user.avatar_urls)[0]} alt="User" />
+        </span>}
 
         <span className="block mr-1 font-medium text-theme-sm">{user?.name}</span>
         <svg

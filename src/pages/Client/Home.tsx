@@ -20,7 +20,7 @@ import api from "../../services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthProvider";
 import { register } from "../../auth/auth";
-import { errorControl } from "../../services/utils";
+import { errorControl, slugify } from "../../services/utils";
 // import Input from "../../components/form/form-elements/DefaultInputs"
 export default function Home() {
   const [step, setStep] = useState(0);
@@ -35,6 +35,8 @@ export default function Home() {
   const [ email, setEmail ] = useState<string>('');
   const [ password, setPassword ] = useState<string>('');
   const [ confirmPassword, setConfirmPassword ] = useState();
+  const [templates, setTemplates] = useState([]);
+
 
   const [dots, setDots] = useState('');
 
@@ -115,6 +117,17 @@ export default function Home() {
     setStep(prev => prev - 1);
   }
 
+  useEffect(() => {
+
+    const fetchTemplate = async () => {
+      const { data } = await api.get('convitin/v1/templates');
+      setTemplates(data);
+      setState(prev => ({...prev, template_id: searchParams.get('template') || data[0]?.id || ''}))
+    }
+
+    fetchTemplate();
+  }, []);
+
   
   const searchParams: any = new URLSearchParams(useLocation().search);
 
@@ -126,7 +139,7 @@ export default function Home() {
     title: '',
     event_date: '',
     description: '',
-    enable_ceremony: true,
+    enable_ceremony: false,
     ceremony_date: '',
     ceremony_time: '',
     ceremony_location: '',
@@ -141,8 +154,7 @@ export default function Home() {
     observations: '',
     owner_instagram: '',
     background_music: '',
-    start_background_music: 0,
-    template_id: searchParams.get('template') || ''
+    start_background_music: 0
   });
 
 
@@ -160,22 +172,23 @@ export default function Home() {
 
     setLoading(true);
 
-    const data = {...state};
-    data.owner_instagram = instagramFields.join(',');
-
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    formData.append('main_image', mainImage.file);
-    
-    for(let img of images){
-      formData.append('gallery[]', img.file);
-    }
-
-
     try{
+
+      const data = {...state};
+      data.owner_instagram = instagramFields.join(',');
+
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      if(mainImage?.file){
+        formData.append('main_image', mainImage.file);
+      }
+      
+      for(let img of images){
+        formData.append('gallery[]', img.file);
+      }
 
       if(!isLogin){
         await register(name, email, password);
@@ -195,12 +208,28 @@ export default function Home() {
       navigate('/admin/convites');
 
     }catch(e){
+      console.log(e)
       toast(errorControl(e) || 'Erro ao criar convite, tente novamente.', { type: 'error' });
       setAuthSuccess(false);
     }finally{
       setLoading(false);
     }
 
+  }
+
+  const setDataEvento = (e) => {
+    setState(prev => ({...prev,
+      event_date: e.target.value,
+      ceremony_date: e.target.value,
+      party_date: e.target.value,
+    }))
+  }
+
+  const setEventName = (e) => {
+    setState(prev => ({...prev,
+      title: e.target.value,
+      slug: slugify(e.target.value),
+    }))
   }
 
   return (
@@ -213,8 +242,37 @@ export default function Home() {
           {step === 0 && (
             <>
               <FormCard
-                title="Crie seu convite"
+                title="Modelos"
                 stepText="Passo 1"
+                buttonLabel={null}
+              >
+                <div className="flex gap-3 overflow-x-auto">
+                  
+                  {!templates.length ? 
+                    <div role="status">
+                      <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                      </svg>
+                      <span className="sr-only">Loading...</span>
+                  </div>
+                  :
+                  templates.map((t, index) => (
+                    <div key={'template_' + index} className="flex flex-col items-center min-w-[130px] max-w-[130px] min-h-[180px] ">
+                      <img
+                        src={t.main_image}
+                        className="object-cover w-[130px] h-[180px] rounded-md border-1 border-gray-300"
+                      />
+                      <h5 className="text-sm text-black font-bold text-center">{t.title}</h5>
+                      <div onClick={() => setState(prev => ({...prev, template_id: t.id}))} className={"cursor-pointer py-1 px-2 text-white text-xs rounded-2xl transition-colors " + (state.template_id == t.id ? 'bg-brand-500' : 'bg-pink-300 hover:bg-pink-400')}>
+                        {state.template_id == t.id ? 'Selecionado' : 'Selecionar'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </FormCard>
+              <FormCard
+                title="Crie seu convite"
                 buttonLabel="Próximo Passo"
                 // icon={<SlArrowRight size={20} color="blue" />}
                 onSubmit={nextStep}
@@ -226,13 +284,13 @@ export default function Home() {
                     name="title"
                     required
                     value={state.title}
-                    onChange={setValue}
+                    onChange={setEventName}
                     placeholder="João e Maria, M & H, ..."
                   />
                 </div>
 
                 <div>
-                  <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
+                  <Label>Foto principal  <span className="text-pink">(opcional)</span> <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
 
                   <div
                     {...getMainRootProps()}
@@ -246,7 +304,7 @@ export default function Home() {
                     id="demo-upload"
                   >
                     {/* Hidden Input */}
-                    <input {...getMainInputProps()} required />
+                    <input {...getMainInputProps()} />
 
                     <div className="dz-message flex flex-col items-center m-0!">
                       {/* Icon Container */}
@@ -293,16 +351,15 @@ export default function Home() {
                     name="event_date"
                     required
                     value={state.event_date}
-                    onChange={setValue}
+                    onChange={setDataEvento}
                     placeholder="Selecione a data"
                   />
                 {/* </div> */}
 
                 <div>
-                  <Label htmlFor="eventPhrase">Frase inicial</Label>
+                  <Label htmlFor="eventPhrase">Frase inicial <span className="text-pink">(opcional)</span></Label>
                   <Input
                     type="text"
-                    required
                     name="description"
                     value={state.description}
                     onChange={setValue}
@@ -326,44 +383,47 @@ export default function Home() {
                 <Switch label={"Cerimônia"} color="pink" defaultChecked={state.enable_ceremony}
                   onChange={(v) => setValue({currentTarget: {name: 'enable_ceremony', value: v}})}  />
               </div>
-              <div className="flex gap-4 ">
-                <div>
-                  <Label htmlFor="tm">Data do evento</Label>
-                  <Input
-                    type="date"
-                    name="ceremony_date"
-                    required={state.enable_ceremony}
-                    value={state.ceremony_date}
-                    onChange={setValue}
-                    disabled={!state.enable_ceremony}
-                    placeholder="Selecione a data"
-                    />
+              {state.enable_ceremony && <>
+                <div className="flex gap-4 ">
+                  <div>
+                    <Label htmlFor="tm">Data do evento</Label>
+                    <Input
+                      type="date"
+                      name="ceremony_date"
+                      required={state.enable_ceremony}
+                      value={state.ceremony_date}
+                      onChange={setValue}
+                      disabled={!state.enable_ceremony}
+                      placeholder="Selecione a data"
+                      />
+                  </div>
+                  <div>
+                    <Label htmlFor="tm">Hora do evento</Label>
+                    <Input type="time" id="tm" 
+                      name="ceremony_time" 
+                      required={state.enable_ceremony}
+                      onChange={setValue} 
+                      value={state.ceremony_time}
+                      disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="tm">Hora do evento</Label>
-                  <Input type="time" id="tm" 
-                    name="ceremony_time" 
-                    required={state.enable_ceremony}
-                    onChange={setValue} 
-                    value={state.ceremony_time}
-                    disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
-                </div>
-              </div>
-              <Label htmlFor="address">Nome do Local </Label>
-              <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-              <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
-              <Input
-                type="text"
-                name="ceremony_address"
-                required={state.enable_ceremony}
-                value={state.ceremony_address}
-                onChange={setValue} 
-                disabled={!state.enable_ceremony}
-            className={`p-2 border rounded-md ${
-              state.enable_ceremony ? "bg-white" : "bg-gray-100 text-gray-400"
-            }`}
-                placeholder="Rua Cardoso 123"
-              />
+                <Label htmlFor="address">Nome do Local </Label>
+                <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
+                <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
+                <Input
+                  type="text"
+                  name="ceremony_address"
+                  required={state.enable_ceremony}
+                  value={state.ceremony_address}
+                  onChange={setValue} 
+                  disabled={!state.enable_ceremony}
+              className={`p-2 border rounded-md ${
+                state.enable_ceremony ? "bg-white" : "bg-gray-100 text-gray-400"
+              }`}
+                  placeholder="Rua Cardoso 123"
+                />
+              </>
+              }
 
               <div>
                 <Switch label={"Festa"} color="pink" defaultChecked={state.enable_party}
@@ -478,7 +538,7 @@ export default function Home() {
               onSubmit={nextStep}
               onBack={handleBackStep}
             >
-              <div>
+              {/* <div>
                 <Label>URL do convite</Label>
                 <div className="flex">
                   <div
@@ -490,14 +550,13 @@ export default function Home() {
                     name="slug"
                     value={state.slug}
                     className="rounded-l-none"
-                    required
                     onChange={setValue}
                     placeholder="joao-e-maria"
                   />
                 </div>
-              </div>
+              </div> */}
               <div>
-                <Label>Dress Code <small className="text-pink">(opcional)</small></Label>
+                <Label>Dress Code <span className="text-pink">(opcional)</span></Label>
                 <Input
                   type="text"
                   id="dressCode"
@@ -508,12 +567,12 @@ export default function Home() {
                 />
               </div>
               <div>
-                <Label>Observações <small className="text-pink">(opcional)</small></Label>
+                <Label>Observações <span className="text-pink">(opcional)</span></Label>
                 <Input type="text" id="observations" value={state.observations} name="observations"
                   onChange={setValue} placeholder="Vá de uber" />
               </div>
               <div>  
-                <Label>Instagram dos organizadores <small className="text-pink">(opcional)</small></Label>
+                <Label>Instagram dos organizadores <span className="text-pink">(opcional)</span></Label>
                 <div className="flex flex-col gap-2">
                   {instagramFields.map((value, index) => (
                       <Input
@@ -554,7 +613,7 @@ export default function Home() {
                 </div>
               </div> 
               <div> 
-                <Label>Música de fundo (YouTube) <small className="text-pink">(opcional)</small></Label>
+                <Label>Música de fundo (YouTube) <span className="text-pink">(opcional)</span></Label>
                 <Input
                   type="text"
                   id="music"
@@ -565,7 +624,7 @@ export default function Home() {
                 />
               </div>
               <div>
-                <Label>Iniciar música no segundo <small className="text-pink">(opcional)</small></Label>
+                <Label>Iniciar música no segundo <span className="text-pink">(opcional)</span></Label>
                 <Input type="text" value={state.start_background_music} name="start_background_music"
                   onChange={setValue} id="musicSegundo" placeholder="46" />
                 
