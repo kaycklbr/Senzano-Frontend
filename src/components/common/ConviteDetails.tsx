@@ -203,9 +203,13 @@ export default function ConviteDetails({ isEdit }) {
       });
 
       if(mainImage?.id){
-        formData.delete('main_image');
+        formData.set('main_image', mainImage?.id);
       }else{
-        formData.set('main_image', mainImage.file);
+        if(mainImage?.file){
+          formData.set('main_image', mainImage.file);
+        }else{
+          formData.delete('main_image')
+        }
       }
 
 
@@ -351,7 +355,7 @@ export default function ConviteDetails({ isEdit }) {
                   id="demo-upload"
                 >
                   {/* Hidden Input */}
-                  <input {...getMainInputProps()} required={!mainImage} />
+                  <input {...getMainInputProps()} />
 
                   <div className="dz-message flex flex-col items-center m-0!">
                     {/* Icon Container */}
@@ -382,7 +386,10 @@ export default function ConviteDetails({ isEdit }) {
               </div>
 
               {mainImage && (
-                <div className="mt-4">
+                <div className="mt-4 relative">
+                  <div onClick={() =>setMainImage(null)} className="cursor-pointer w-7 h-7 bg-[#000000AB] absolute top-2 right-2 flex items-center justify-center rounded-4xl">
+                    <FaX className="text-white text-sm"/>
+                  </div>
                   <img
                     src={mainImage.url}
                     alt="Preview"
@@ -408,7 +415,6 @@ export default function ConviteDetails({ isEdit }) {
                 <Input
                   type="text"
                   name="description"
-                  required
                   value={state.description}
                   onChange={setValue}
                   placeholder="Venha celebrar conosco nessa festa..."

@@ -61,8 +61,7 @@ function convitin_register_custom_routes() {
     
     register_rest_route('convitin/v1', '/templates', [
         'methods'  => 'GET',
-        'callback' => 'convitin_list_templates',
-        'permission_callback' => 'is_user_logged_in'
+        'callback' => 'convitin_list_templates'
     ]);
     
     register_rest_route('convitin/v1', '/submissions/(?P<id>\d+)', [
@@ -225,7 +224,7 @@ function convitin_create_convite($request) {
     $status = sanitize_textarea_field($request->get_param('status'));
     
     if(!isset($_POST['template_id']) or empty($_POST['template_id'])){
-        $_POST['template_id'] = 10823;
+        $_POST['template_id'] = 10845;
     }
 
     $post_id = wp_insert_post([
@@ -293,7 +292,10 @@ function convitin_create_convite($request) {
             update_post_meta($post_id, 'main_image', $attachment_id);
             set_post_thumbnail( $post_id, $attachment_id );
         }
-        
+    } else {
+        if(!isset($_POST['main_image'])){
+            delete_post_thumbnail($post_id);
+        }
     }
     
     $image_ids = [];
@@ -332,6 +334,9 @@ function convitin_create_convite($request) {
         update_post_meta($post_id, $f, $v);
     }
     
+    $thumbnail_id = get_post_thumbnail_id($post_id);
+    update_post_meta($post_id, 'css_featured_image', $thumbnail_id ? '' : 'hide');
+    
 
     return new WP_REST_Response(['message' => 'Convite criado com sucesso.', 'id' => $post_id], 201);
 }
@@ -359,7 +364,7 @@ function convitin_list_convite($request) {
 
             $convites[] = [
                 'id'          => get_the_ID(),
-                'title'       => get_the_title(),
+                'title'       => html_entity_decode(get_the_title()),
                 'description' => get_the_content(),
                 'slug'        => get_permalink(get_the_ID()),
                 'status'      => get_post_status(get_the_ID()),
@@ -468,8 +473,6 @@ function convitin_prepare_meta_classes($custom = []){
         }
     }
     
-    
-    
     $css_gift = (isset($_POST['enable_gift']) and $_POST['enable_gift'] === "true" ) ? '' : 'hide';
     $css_dress_code = !empty($_POST['dress_code']) ? '' : 'hide';
     $css_observations = !empty($_POST['observations']) ? '' : 'hide';
@@ -515,10 +518,11 @@ function convitin_get_convite($request) {
     $meta = convitin_flatten_meta($meta_raw);
 
     // Imagem principal (ID de attachment)
-    $main_image_id = isset($meta['main_image']) ? intval($meta['main_image']) : null;
+    $main_image_id = get_post_thumbnail_id($post_id);
     $main_image = null;
+    
 
-    if ($main_image_id && get_post($main_image_id)) {
+    if ($main_image_id) {
         $main_image = [
             'id'  => $main_image_id,
             'url' => wp_get_attachment_url($main_image_id),
@@ -544,7 +548,7 @@ function convitin_get_convite($request) {
     
     $response = [
         'id' => $post->ID,
-        'title' => $post->post_title,
+        'title' => html_entity_decode($post->post_title),
         'slug' => $post->post_name,
         'url' => get_permalink($post->ID),
         'description' => $post->post_content,
@@ -627,6 +631,10 @@ function convitin_update_convite($request) {
             update_post_meta($post_id, 'main_image', $attachment_id);
             set_post_thumbnail($post_id, $attachment_id);
         }
+    }else{
+        if(!isset($_POST['main_image'])){
+            delete_post_thumbnail($post_id);
+        }
     }
 
     // ✅ Atualiza galeria
@@ -685,7 +693,8 @@ function convitin_update_convite($request) {
         update_post_meta($post_id, $f, $v);
     }
     
-    
+    $thumbnail_id = get_post_thumbnail_id($post_id);
+    update_post_meta($post_id, 'css_featured_image', $thumbnail_id ? '' : 'hide');
     
 
     update_post_meta($post_id, 'convitin_galeria', $final_gallery_ids);
@@ -717,6 +726,8 @@ function convitin_list_templates($request) {
         'post_status'    => 'any',
         'meta_key'   => 'is_template',
         'meta_value' => '1',
+        'orderby'   => 'ID',
+        'order'     => 'ASC'
     ];
 
     $query = new WP_Query($args);
