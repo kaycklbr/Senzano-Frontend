@@ -19,6 +19,7 @@ import api from "../../services/api";
 import { login, setTokens } from "../../auth/auth";
 import { toast } from "react-toastify";
 import Button from "../ui/button/Button";
+import { ConfirmModal } from "./ConfirmModal";
 // import Input from "../../components/form/form-elements/DefaultInputs"
 export default function ConviteDetails({ isEdit }) {
   const [step, setStep] = useState(0);
@@ -270,16 +271,14 @@ export default function ConviteDetails({ isEdit }) {
     </div>
   }
 
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm("Tem certeza que deseja excluir este convite?");
-    if (!confirmDelete) return;
 
+  const handleDelete = async () => {
     try {
       await api.delete(`convitin/v1/delete/${params.id}`);
-      toast("Convite excluído com sucesso!", { type: 'success' });
-      navigate("/admin/convites"); // redireciona para lista de convites
+      toast.success(`Convite excluído com sucesso! ID: ${params.id}`);
+      navigate("/admin/convites");
     } catch (e) {
-      toast(errorControl(e), { type: 'error' });
+      toast.error(errorControl(e));
     }
   };
 
@@ -684,9 +683,13 @@ export default function ConviteDetails({ isEdit }) {
 
             </div>
 
-            <button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow">
-              Excluir convite
-            </button>
+
+            <ConfirmModal
+              onConfirm={handleDelete}
+              title="Excluir convite?"
+              description="Você tem certeza que deseja excluir este convite? Essa ação é irreversível."
+              trigger={<button className="bg-red-600 text-white px-4 py-2 rounded">Excluir convite</button>}
+            />
           </FormCard>
 
 

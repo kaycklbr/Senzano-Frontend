@@ -21,6 +21,7 @@ import { login, setTokens } from "../../auth/auth";
 import { toast } from "react-toastify";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { ConfirmModal } from "./ConfirmModal";
 // import Input from "../../components/form/form-elements/DefaultInputs"
 export default function ConviteConfirmations() {
   const [step, setStep] = useState(0);
@@ -157,23 +158,33 @@ export default function ConviteConfirmations() {
     const value = event.currentTarget.value;
     setState(prev => ({ ...prev, [name]: value }));
   }
-  const handleDelete = async (id: string | number) => {
-    const confirmed = window.confirm("Tem certeza que deseja deletar esta confirmação?");
-    if (!confirmed) return;
 
+  const handleDelete = async () => {
     try {
-      await api.delete(`convitin/v1/submissions/${id}`);
-      toast.success("Confirmação deletada com sucesso!");
-
-      // Atualiza a lista após deletar
-      setConfirmations((prev) => ({
-        ...prev,
-        result: prev.result.filter((item) => item.id !== id),
-      }));
-    } catch (error) {
-      toast.error("Erro ao deletar a confirmação.");
+      await api.delete(`convitin/v1/delete/${params.id}`);
+      toast.success(`Convite excluído com sucesso! ID: ${params.id}`);
+      navigate("/admin/convites");
+    } catch (e) {
+      toast.error(errorControl(e));
     }
   };
+  // const handleDelete = async (id: string | number) => {
+  //   const confirmed = window.confirm("Tem certeza que deseja deletar esta confirmação?");
+  //   if (!confirmed) return;
+
+  //   try {
+  //     await api.delete(`convitin/v1/submissions/${id}`);
+  //     toast.success("Confirmação deletada com sucesso!");
+
+  //     // Atualiza a lista após deletar
+  //     setConfirmations((prev) => ({
+  //       ...prev,
+  //       result: prev.result.filter((item) => item.id !== id),
+  //     }));
+  //   } catch (error) {
+  //     toast.error("Erro ao deletar a confirmação.");
+  //   }
+  // };
 
 
   const handleSave = async () => {
@@ -321,9 +332,17 @@ export default function ConviteConfirmations() {
                         {c.submitted_at}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                        <button className="text-red-600 hover:text-red-800 font-medium flex items-center gap-1" onClick={() => handleDelete(item.id)}  >
-                          <FaTrash />
-                        </button>
+
+                        <ConfirmModal
+                          onConfirm={() => handleDelete(item.id)}
+                          title="Excluir convite?"
+                          description="Tem certeza que deseja excluir este convite? Essa ação é irreversível."
+                          trigger={
+                            <button className="text-red-600 hover:text-red-800 font-medium flex items-center gap-1">
+                              <FaTrash />
+                            </button>
+                          }
+                        />
                       </TableCell>
                     </TableRow>
 
