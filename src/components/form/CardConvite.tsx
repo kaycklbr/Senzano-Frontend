@@ -11,38 +11,39 @@ import api from "../../services/api";
 const CardConvite = ({ data }) => {
   const navigate = useNavigate();
 
-  const [ status, setStatus ] = useState(data.status);
+  const [status, setStatus] = useState(data.status);
 
   function shareLink({ url = window.location.href, title = document.title, text = '' }) {
     if (navigator.share) {
-        navigator.share({
-            title,
-            text,
-            url
-        }).then(() => {
-            console.log('Link compartilhado com sucesso!');
-        }).catch((error) => {
-            console.warn('Erro ao compartilhar:', error);
-        });
+      navigator.share({
+        title,
+        text,
+        url
+      }).then(() => {
+        console.log('Link compartilhado com sucesso!');
+      }).catch((error) => {
+        console.warn('Erro ao compartilhar:', error);
+      });
     } else {
-        // Fallback: copiar para área de transferência
-        navigator.clipboard.writeText(url).then(() => {
-            alert('Link copiado para a área de transferência!');
-        }).catch(() => {
-            // Fallback ainda mais simples
-            prompt("Copie o link:", url);
-        });
+      // Fallback: copiar para área de transferência
+      const fullText = `${text}\n\n${url}`;
+      navigator.clipboard.writeText(fullText).then(() => {
+        alert('Texto copiado para a área de transferência!');
+      }).catch(() => {
+        // Fallback ainda mais simples
+        prompt("Copie o link:", fullText);
+      });
     }
-}
+  }
   const onChangeStatus = async (v) => {
-    try{
+    try {
       const _status = !!v ? 'publish' : 'draft';
-      await api.post('convitin/v1/update-status/'+data.id, {
+      await api.post('convitin/v1/update-status/' + data.id, {
         status: _status
       })
       setStatus(_status)
-    }catch(e){
-      toast(errorControl(e), { type: 'error'})
+    } catch (e) {
+      toast(errorControl(e), { type: 'error' })
     }
   }
 
@@ -58,7 +59,7 @@ const CardConvite = ({ data }) => {
           />
           :
           <div className="flex justify-center items-center w-full h-full bg-gray-100 rounded-md">
-            <FaImage className="text-3xl text-gray-300"/>
+            <FaImage className="text-3xl text-gray-300" />
           </div>
         }
       </div>
@@ -68,19 +69,19 @@ const CardConvite = ({ data }) => {
         {/* Título e status */}
         <div className="flex flex-col gap-2">
           {data.status == 'publish' ?
-          <a href={data.slug} target="_blank" className="flex items-center gap-2 underline">
+            <a href={data.slug} target="_blank" className="flex items-center gap-2 underline">
+              <h2 className="text-2xl font-bold">{data.title}</h2>
+              <FaArrowUpRightFromSquare className="text-lg" />
+            </a>
+            :
             <h2 className="text-2xl font-bold">{data.title}</h2>
-            <FaArrowUpRightFromSquare className="text-lg" />
-          </a>
-          :
-          <h2 className="text-2xl font-bold">{data.title}</h2>
           }
           <div className="flex gap-2 items-center">
             <span className={"text-xs self-start text-center text-white rounded-md px-2 py-1 " + (status == 'publish' ? 'bg-pink-500' : 'bg-brand-500')}>
               {status == 'publish' ? 'Ativo' : 'Rascunho'}
             </span>
             <Switch color="pink" defaultChecked={status == 'publish'}
-                  onChange={(v) => onChangeStatus(v)}  />
+              onChange={(v) => onChangeStatus(v)} />
           </div>
         </div>
 
@@ -101,7 +102,7 @@ const CardConvite = ({ data }) => {
           <Button className="flex-1 text-white font-bold py-2 rounded-xl" onClick={() => navigate('/admin/convites/' + data.id)}>
             Editar / Confirmações
           </Button>
-          <Button className="bg-pink hover:bg-pink-600 text-white font-bold py-2 rounded-xl w-[60px]" onClick={() => shareLink({url: data.slug, title: 'Você foi convidado!'})}>
+          <Button className="bg-pink hover:bg-pink-600 text-white font-bold py-2 rounded-xl w-[60px]" onClick={() => shareLink({ url: data.slug, title: 'Você foi convidado!', text: `O evento mais importante do ano está chegando e é com muito prazer que eu te convido para esse dia tão especial\n\nClique aqui para acessar o convite e confirme sua presença. 👇 ` })}>
             <FaShareNodes />
           </Button>
         </div>

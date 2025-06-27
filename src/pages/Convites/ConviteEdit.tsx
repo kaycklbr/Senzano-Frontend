@@ -14,7 +14,10 @@ import ConviteDetails from "../../components/common/ConviteDetails";
 import { CheckCircleIcon, CheckLineIcon, DocsIcon, InfoIcon, UserIcon } from "../../icons";
 import { useState } from "react";
 import ConviteConfirmations from "../../components/common/ConviteConfirmations";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import api from "../../services/api";
+import { toast } from "react-toastify";
+
 
 const tabStyle = {
   unselected: 'hover:text-gray-900 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white',
@@ -23,33 +26,39 @@ const tabStyle = {
 
 export default function ConviteEdit() {
 
-  const [ tab, setTab ] = useState('info');
+  const [tab, setTab] = useState('info');
   const params = useParams();
-  const [ isEdit, setIsEdit ] = useState(params?.id != 'criar');
-  
+  const navigate = useNavigate();
+  const [isEdit, setIsEdit] = useState(params?.id != 'criar');
+
+
+
+
   return (
     <div>
       <PageBreadcrumb pageTitle={(isEdit ? 'Editar' : 'Criar') + " convite"} />
 
       <div className="">
         {isEdit && <ul className="flex md:min-w-[200px] gap-2 md:flex-wrap pb-2 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
-            <li>
-                <a href="#" 
-                  onClick={() => setTab('info')}
-                  className={"inline-flex items-center shadow px-4 py-3 rounded-lg w-full " + (tab == 'info' ? tabStyle.selected : tabStyle.unselected)} aria-current="page">
-                    <DocsIcon className={"me-2 text-xl " + (tab == 'info' ? 'text-white' : '')}/>
-                    Informações
-                </a>
-            </li>
-            <li>
-                <a href="#" 
-                  onClick={() => setTab('confirmation')}
-                  className={"inline-flex items-center shadow px-4 py-3 whitespace-nowrap md:whitespace-normal rounded-lg w-full " + (tab == 'confirmation' ? tabStyle.selected : tabStyle.unselected)}>
-                  <CheckLineIcon className={"me-2 text-xl " + (tab == 'confirmation' ? 'text-white' : '')}/>
-                    Confirmações de presença
-                </a>
-            </li>
+          <li>
+            <a href="#"
+              onClick={() => setTab('info')}
+              className={"inline-flex items-center shadow px-4 py-3 rounded-lg w-full " + (tab == 'info' ? tabStyle.selected : tabStyle.unselected)} aria-current="page">
+              <DocsIcon className={"me-2 text-xl " + (tab == 'info' ? 'text-white' : '')} />
+              Informações
+            </a>
+          </li>
+          <li>
+            <a href="#"
+              onClick={() => setTab('confirmation')}
+              className={"inline-flex items-center shadow px-4 py-3 whitespace-nowrap md:whitespace-normal rounded-lg w-full " + (tab == 'confirmation' ? tabStyle.selected : tabStyle.unselected)}>
+              <CheckLineIcon className={"me-2 text-xl " + (tab == 'confirmation' ? 'text-white' : '')} />
+              Confirmações de presença
+            </a>
+          </li>
         </ul>}
+
+
         <div className=" bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg flex-1">
           {tab == 'info' &&
             <ConviteDetails isEdit={isEdit} />
@@ -58,7 +67,7 @@ export default function ConviteEdit() {
             <ConviteConfirmations />
           }
         </div>
-    </div>
+      </div>
 
     </div>
   );

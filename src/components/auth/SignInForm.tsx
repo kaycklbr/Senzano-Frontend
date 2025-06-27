@@ -16,39 +16,39 @@ export default function SignInForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [ email, setEmail ] = useState('');
-  const [ password, setPassword ] = useState('');
-  const [ loading, setLoading ] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    try{
+    try {
       await login(email, password);
       toast('Logado com sucesso!', { type: 'success' })
-    }catch(e){
-      toast(e.response.data.message, { type: 'error'});
-    }finally{
+    } catch (e) {
+      toast(e.response.data.message, { type: 'error' });
+    } finally {
       setLoading(false);
     }
   }
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
-      <Link to="/" className="self-center mb-10 mt-5">
-        <img
-          className="dark:hidden w-40"
-          src={logo}
-          alt="Logo"
-        />
-        <img
-          className="hidden dark:block"
-          src="./images/logo/logo-dark.svg"
-          alt="Logo"
-        />
-      </Link>
+        <Link to="/" className="self-center mb-10 mt-5">
+          <img
+            className="dark:hidden w-40"
+            src={logo}
+            alt="Logo"
+          />
+          <img
+            className="hidden dark:block"
+            src="./images/logo/logo-dark.svg"
+            alt="Logo"
+          />
+        </Link>
         <div>
-        
+
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Entrar
@@ -102,7 +102,7 @@ export default function SignInForm() {
                     Forgot password?
                   </Link>
                 </div> */}
-                
+
                 <div>
                   <Button type="submit" loading={loading} className="w-full" size="sm">
                     Entrar
@@ -127,10 +127,10 @@ export default function SignInForm() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Não possui uma conta? {""}
                 <Link
-                  to="/signup"
+                  to="/criar-convite"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                  Cadastre-se
+                  Crie seu convite
                 </Link>
               </p>
             </div>

@@ -30,12 +30,12 @@ export default function ConviteDetails({ isEdit }) {
   const [isPartyActive, setIsPartyActive] = useState(true);
   const [images, setImages] = useState<{ file: File; url: string }[]>([]);
   const [templates, setTemplates] = useState([]);
-  const [ name, setName ] = useState();
-  const [ email, setEmail ] = useState();
-  const [ password, setPassword ] = useState();
-  const [ confirmPassword, setConfirmPassword ] = useState();
-  const [ loading, setLoading ] = useState<boolean>(false);
-  const [ saveLoading, setSaveLoading ] = useState<boolean>(false);
+  const [name, setName] = useState();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const [confirmPassword, setConfirmPassword] = useState();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
   function handleAddField() {
     setInstagramFields([...instagramFields, ""]);
@@ -61,16 +61,16 @@ export default function ConviteDetails({ isEdit }) {
       return newStep;
     });
   };
- 
 
-  const [ mainImage, setMainImage ] = useState<any>();
+
+  const [mainImage, setMainImage] = useState<any>();
   const handleMainDrop = (acceptedFiles: File[]) => {
     const newImage = acceptedFiles.map((file) => ({
       file,
       url: URL.createObjectURL(file),
     }));
 
-  
+
     setMainImage(newImage[0]);
   };
 
@@ -89,7 +89,7 @@ export default function ConviteDetails({ isEdit }) {
       file,
       url: URL.createObjectURL(file),
     }));
-  
+
     setImages((prevImages) => [...prevImages, ...newImages]);
   };
 
@@ -101,17 +101,17 @@ export default function ConviteDetails({ isEdit }) {
       "image/webp": [],
     },
   });
-  
+
   const toggleIsLogin = () => {
     setIsLogin((prev) => !prev);
   };
   function handleBackStep() {
     setStep(prev => prev - 1);
   }
-  
-  
 
-  const [ state, setState ] = useState({
+
+
+  const [state, setState] = useState({
     title: '',
     event_date: '',
     description: '',
@@ -139,15 +139,15 @@ export default function ConviteDetails({ isEdit }) {
   const params = useParams();
   const fetchConvite = async () => {
     setLoading(true);
-    try{
-      const { data } = await api.get('convitin/v1/convites/'+params.id);
+    try {
+      const { data } = await api.get('convitin/v1/convites/' + params.id);
       setState(data);
       setMainImage(data.main_image);
       setImages(data.gallery);
       setInstagramFields(data.owner_instagram.split(','))
-    }catch(e){
-      
-    }finally{
+    } catch (e) {
+
+    } finally {
       setLoading(false);
     }
   }
@@ -165,35 +165,44 @@ export default function ConviteDetails({ isEdit }) {
   const setValue = (event: any) => {
     const name = event.currentTarget.name;
     const value = event.currentTarget.value;
-    setState(prev => ({...prev, [name]: value}));
+    setState(prev => ({ ...prev, [name]: value }));
   }
 
+  /*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Removes an image from the list of images based on the provided index.
+   *
+   * @param {number} indexToRemove - The index of the image to be removed.
+   */
+
+  /*******  9203510b-f2bd-4baf-a65b-1ea1fdd0465d  *******/
   const removeItem = (indexToRemove) => {
     setImages(prevItems => prevItems.filter((_, index) => index !== indexToRemove));
   };
 
   const navigate = useNavigate();
 
+
   const handleSave = async () => {
 
     const forms = document.querySelectorAll('#edit-convite form');
-    for(let f of forms){
-      if(!f.reportValidity()){
+    for (let f of forms) {
+      if (!f.reportValidity()) {
         return;
       }
     }
 
     setSaveLoading(true);
-    try{
+    try {
 
 
-      if(!state?.template_id){
+      if (!state?.template_id) {
         toast('Selecione um modelo para salvar', { type: 'error' });
         setSaveLoading(false);
         return;
       }
 
-      const data = {...state};
+      const data = { ...state };
       data.owner_instagram = instagramFields.join(',');
 
 
@@ -202,64 +211,77 @@ export default function ConviteDetails({ isEdit }) {
         formData.append(key, value);
       });
 
-      if(mainImage?.id){
+      if (mainImage?.id) {
         formData.set('main_image', mainImage?.id);
-      }else{
-        if(mainImage?.file){
+      } else {
+        if (mainImage?.file) {
           formData.set('main_image', mainImage.file);
-        }else{
+        } else {
           formData.delete('main_image')
         }
       }
 
 
       formData.delete('gallery');
-      for(let img of images){
-        if(img?.id){
+      for (let img of images) {
+        if (img?.id) {
           formData.append('existing_gallery[]', img.id);
-        }else{
+        } else {
           formData.append('gallery[]', img.file);
         }
       }
 
 
-      if(isEdit){
-        const response = await api.post('convitin/v1/convites/edit/'+params.id, formData, {
+      if (isEdit) {
+        const response = await api.post('convitin/v1/convites/edit/' + params.id, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
         toast('Convite atualizado com sucesso!', { type: 'success' });
-      }else{
+      } else {
         const response = await api.post('convitin/v1/convites', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
         toast('Convite criado com sucesso!', { type: 'success' });
-        navigate('/admin/convites/'+response.data.id);
+        navigate('/admin/convites/' + response.data.id);
 
       }
 
       await fetchConvite();
 
-    }catch(e){
+    } catch (e) {
       toast(e.message, { type: 'error' });
-    }finally{
+    } finally {
       setSaveLoading(false);
     }
 
   }
 
-  if(loading){
+  if (loading) {
     return <div role="status">
-        <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-        </svg>
-        <span className="sr-only">Loading...</span>
+      <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+      </svg>
+      <span className="sr-only">Loading...</span>
     </div>
   }
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Tem certeza que deseja excluir este convite?");
+    if (!confirmDelete) return;
+
+    try {
+      await api.delete(`convitin/v1/delete/${params.id}`);
+      toast("Convite excluído com sucesso!", { type: 'success' });
+      navigate("/admin/convites"); // redireciona para lista de convites
+    } catch (e) {
+      toast(errorControl(e), { type: 'error' });
+    }
+  };
 
   return (
     <>
@@ -268,24 +290,38 @@ export default function ConviteDetails({ isEdit }) {
         md:h-auto rounded-xl shadow-md
         p-4">
           <FormCard
-              title="Modelos"
-              buttonLabel={null}
-            >
-              <div className="flex gap-3 overflow-x-auto">
-                {templates.map((t, index) => (
-                  <div key={'template_' + index} className="flex flex-col items-center min-w-[130px] max-w-[130px] min-h-[180px] ">
+            title="Modelos"
+            buttonLabel={null}
+          >
+            <div className="flex gap-3 overflow-x-auto">
+              {templates.map((t, index) => {
+                const isSelected = state.template_id === t.id
+                return (
+
+                  <div key={'template_' + index}
+                    onClick={() => setState(prev => ({ ...prev, template_id: t.id }))}
+                    role="button"
+                    tabIndex={0}
+                    className={"flex flex-col items-center min-w-[130px] max-w-[130px] min-h-[180px]  cursor-pointer border rounded-md p-2 transition-all" + (isSelected ? "border-brand-500 bg-pink-50" : "border-gray-300 hover:bg-gray-50")}>
                     <img
                       src={t.main_image}
+                      alt={t.title}
                       className="object-cover w-[130px] h-[180px] rounded-md border-1 border-gray-300"
                     />
                     <h5 className="text-sm text-black font-bold text-center">{t.title}</h5>
-                    <div onClick={() => setState(prev => ({...prev, template_id: t.id}))} className={"cursor-pointer py-1 px-2 text-white text-xs rounded-2xl transition-colors " + (state.template_id == t.id ? 'bg-brand-500' : 'bg-pink-300 hover:bg-pink-400')}>
-                      {state.template_id == t.id ? 'Selecionado' : 'Selecionar'}
+                    <div
+                      className={
+                        "py-1 px-2 text-white text-xs rounded-2xl transition-colors " +
+                        (isSelected ? "bg-brand-500" : "bg-pink-300 hover:bg-pink-400")
+                      }
+                    >
+                      {isSelected ? "Selecionado" : "Selecionar"}
                     </div>
                   </div>
-                ))}
-              </div>
-            </FormCard>
+                );
+              })}
+            </div>
+          </FormCard>
 
         </div>
 
@@ -293,30 +329,30 @@ export default function ConviteDetails({ isEdit }) {
         md:h-auto rounded-xl shadow-md
         p-4">
           <FormCard
-              title="Lista de presentes"
-              buttonLabel={null}
-            >
+            title="Lista de presentes"
+            buttonLabel={null}
+          >
             <Switch label={"Ativar"} color="pink" defaultChecked={state.enable_gift}
-              onChange={(v) => setValue({currentTarget: {name: 'enable_gift', value: v}})}  />
+              onChange={(v) => setValue({ currentTarget: { name: 'enable_gift', value: v } })} />
 
-              <Label>Link da lista</Label>
-              <Input
-                type="text"
-                name="gift_link"
-                value={state.gift_link}
-                onChange={setValue}
-                placeholder="https://..."
-              />
+            <Label>Link da lista</Label>
+            <Input
+              type="text"
+              name="gift_link"
+              value={state.gift_link}
+              onChange={setValue}
+              placeholder="https://..."
+            />
           </FormCard>
 
-          <hr className="my-3"/>
+          <hr className="my-3" />
 
           <FormCard
-              title="Lista de confirmação"
-              buttonLabel={null}
-            >
+            title="Lista de confirmação"
+            buttonLabel={null}
+          >
             <Switch label={"Permitir acompanhantes"} color="pink" defaultChecked={state.hide_acompanhante != 'hide-acompanhante'}
-              onChange={(v) => setValue({currentTarget: {name: 'hide_acompanhante', value: !v ? 'hide-acompanhante' : ''}})}  />
+              onChange={(v) => setValue({ currentTarget: { name: 'hide_acompanhante', value: !v ? 'hide-acompanhante' : '' } })} />
           </FormCard>
 
         </div>
@@ -324,103 +360,102 @@ export default function ConviteDetails({ isEdit }) {
         <div ref={parent} className="w-full h-full mt-3 bg-white 
         md:h-auto rounded-xl shadow-md
         p-4">
-            <FormCard
-              title="Informações do Convite"
-              buttonLabel={null}
-            >
-              <div>
-                <Label>Nome do evento</Label>
-                <Input
-                  type="text"
-                  name="title"
-                  required
-                  value={state.title}
-                  onChange={setValue}
-                  placeholder="João e Maria, M & H, ..."
-                />
-              </div>
+          <FormCard
+            title="Informações do Convite"
+            buttonLabel={null}
+          >
+            <div>
+              <Label>Nome do evento</Label>
+              <Input
+                type="text"
+                name="title"
+                required
+                value={state.title}
+                onChange={setValue}
+                placeholder="João e Maria, M & H, ..."
+              />
+            </div>
 
-              <div>
-                <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
+            <div>
+              <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
 
-                <div
-                  {...getMainRootProps()}
-                  className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
-                    ${
-                      isMainDragActive
-                        ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
-                        : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-                    }
+              <div
+                {...getMainRootProps()}
+                className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
+                    ${isMainDragActive
+                    ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
+                    : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+                  }
                   `}
-                  id="demo-upload"
-                >
-                  {/* Hidden Input */}
-                  <input {...getMainInputProps()} />
+                id="demo-upload"
+              >
+                {/* Hidden Input */}
+                <input {...getMainInputProps()} />
 
-                  <div className="dz-message flex flex-col items-center m-0!">
-                    {/* Icon Container */}
-                    <div className="mb-[22px] flex justify-center">
-                      <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                        <svg
-                          className="fill-current"
-                          width="29"
-                          height="28"
-                          viewBox="0 0 29 28"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M14.5019 3.91699C14.2852 3.91699 14.0899 4.00891 13.953 4.15589L8.57363 9.53186C8.28065 9.82466 8.2805 10.2995 8.5733 10.5925C8.8661 10.8855 9.34097 10.8857 9.63396 10.5929L13.7519 6.47752V18.667C13.7519 19.0812 14.0877 19.417 14.5019 19.417C14.9161 19.417 15.2519 19.0812 15.2519 18.667V6.48234L19.3653 10.5929C19.6583 10.8857 20.1332 10.8855 20.426 10.5925C20.7188 10.2995 20.7186 9.82463 20.4256 9.53184L15.0838 4.19378C14.9463 4.02488 14.7367 3.91699 14.5019 3.91699ZM5.91626 18.667C5.91626 18.2528 5.58047 17.917 5.16626 17.917C4.75205 17.917 4.41626 18.2528 4.41626 18.667V21.8337C4.41626 23.0763 5.42362 24.0837 6.66626 24.0837H22.3339C23.5766 24.0837 24.5839 23.0763 24.5839 21.8337V18.667C24.5839 18.2528 24.2482 17.917 23.8339 17.917C23.4197 17.917 23.0839 18.2528 23.0839 18.667V21.8337C23.0839 22.2479 22.7482 22.5837 22.3339 22.5837H6.66626C6.25205 22.5837 5.91626 22.2479 5.91626 21.8337V18.667Z"
-                          />
-                        </svg>
-                      </div>
+                <div className="dz-message flex flex-col items-center m-0!">
+                  {/* Icon Container */}
+                  <div className="mb-[22px] flex justify-center">
+                    <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                      <svg
+                        className="fill-current"
+                        width="29"
+                        height="28"
+                        viewBox="0 0 29 28"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M14.5019 3.91699C14.2852 3.91699 14.0899 4.00891 13.953 4.15589L8.57363 9.53186C8.28065 9.82466 8.2805 10.2995 8.5733 10.5925C8.8661 10.8855 9.34097 10.8857 9.63396 10.5929L13.7519 6.47752V18.667C13.7519 19.0812 14.0877 19.417 14.5019 19.417C14.9161 19.417 15.2519 19.0812 15.2519 18.667V6.48234L19.3653 10.5929C19.6583 10.8857 20.1332 10.8855 20.426 10.5925C20.7188 10.2995 20.7186 9.82463 20.4256 9.53184L15.0838 4.19378C14.9463 4.02488 14.7367 3.91699 14.5019 3.91699ZM5.91626 18.667C5.91626 18.2528 5.58047 17.917 5.16626 17.917C4.75205 17.917 4.41626 18.2528 4.41626 18.667V21.8337C4.41626 23.0763 5.42362 24.0837 6.66626 24.0837H22.3339C23.5766 24.0837 24.5839 23.0763 24.5839 21.8337V18.667C24.5839 18.2528 24.2482 17.917 23.8339 17.917C23.4197 17.917 23.0839 18.2528 23.0839 18.667V21.8337C23.0839 22.2479 22.7482 22.5837 22.3339 22.5837H6.66626C6.25205 22.5837 5.91626 22.2479 5.91626 21.8337V18.667Z"
+                        />
+                      </svg>
                     </div>
+                  </div>
 
-                    <span className="font-medium underline text-theme-sm text-pink">
+                  <span className="font-medium underline text-theme-sm text-pink">
                     Escolha sua foto
-                    </span>
-                    
-                  </div>
+                  </span>
+
                 </div>
               </div>
+            </div>
 
-              {mainImage && (
-                <div className="mt-4 relative">
-                  <div onClick={() =>setMainImage(null)} className="cursor-pointer w-7 h-7 bg-[#000000AB] absolute top-2 right-2 flex items-center justify-center rounded-4xl">
-                    <FaX className="text-white text-sm"/>
-                  </div>
-                  <img
-                    src={mainImage.url}
-                    alt="Preview"
-                    className="max-w-full h-auto rounded-xl border"
-                  />
+            {mainImage && (
+              <div className="mt-4 relative">
+                <div onClick={() => setMainImage(null)} className="cursor-pointer w-7 h-7 bg-[#000000AB] absolute top-2 right-2 flex items-center justify-center rounded-4xl">
+                  <FaX className="text-white text-sm" />
                 </div>
-              )}
-
-              {/* <div > */}
-              <Label htmlFor="tm">Data do evento</Label>
-                <Input
-                  type="date"
-                  name="event_date"
-                  required
-                  value={state.event_date}
-                  onChange={setValue}
-                  placeholder="Selecione a data"
-                />
-              {/* </div> */}
-
-              <div>
-                <Label htmlFor="eventPhrase">Frase inicial</Label>
-                <Input
-                  type="text"
-                  name="description"
-                  value={state.description}
-                  onChange={setValue}
-                  placeholder="Venha celebrar conosco nessa festa..."
+                <img
+                  src={mainImage.url}
+                  alt="Preview"
+                  className="max-w-full h-auto rounded-xl border"
                 />
               </div>
-            </FormCard>
+            )}
+
+            {/* <div > */}
+            <Label htmlFor="tm">Data do evento</Label>
+            <Input
+              type="date"
+              name="event_date"
+              required
+              value={state.event_date}
+              onChange={setValue}
+              placeholder="Selecione a data"
+            />
+            {/* </div> */}
+
+            <div>
+              <Label htmlFor="eventPhrase">Frase inicial</Label>
+              <Input
+                type="text"
+                name="description"
+                value={state.description}
+                onChange={setValue}
+                placeholder="Venha celebrar conosco nessa festa..."
+              />
+            </div>
+          </FormCard>
 
           <FormCard
             buttonLabel={null}
@@ -428,10 +463,10 @@ export default function ConviteDetails({ isEdit }) {
           >
             <div>
               <Switch label={"Cerimônia"} color="pink" defaultChecked={state.enable_ceremony}
-                onChange={(v) => setValue({currentTarget: {name: 'enable_ceremony', value: v}})}  />
+                onChange={(v) => setValue({ currentTarget: { name: 'enable_ceremony', value: v } })} />
             </div>
-            <div className="flex gap-4 ">
-              <div>
+            <div className="flex gap-4 flex-col md:flex-row md:items-end ">
+              <div className="flex-1">
                 <Label htmlFor="tm">Data do evento</Label>
                 <Input
                   type="date"
@@ -441,16 +476,30 @@ export default function ConviteDetails({ isEdit }) {
                   onChange={setValue}
                   disabled={!state.enable_ceremony}
                   placeholder="Selecione a data"
-                  />
+                  className={`p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400`}
+                />
               </div>
-              <div>
+              <div className="flex-1">
                 <Label htmlFor="tm">Hora do evento</Label>
-                <Input type="time" id="tm" 
-                  name="ceremony_time" 
+                <Input type="time" id="tm"
+                  name="ceremony_time"
                   required={state.enable_ceremony}
-                  onChange={setValue} 
+                  onChange={setValue}
                   value={state.ceremony_time}
-                  disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
+                  disabled={!state.enable_ceremony}
+                  className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="ceremony_end_time">Hora do fim do evento (opcional)</Label>
+                <Input
+                  type="time"
+                  id="ceremony_end_time"
+                  name="ceremony_end_time"
+                  value={state.ceremony_end_time}
+                  onChange={setValue}
+                  disabled={!state.enable_ceremony}
+                  className={`p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400`}
+                />
               </div>
             </div>
             <Label htmlFor="address">Nome do Local </Label>
@@ -461,20 +510,19 @@ export default function ConviteDetails({ isEdit }) {
               name="ceremony_address"
               required={state.enable_ceremony}
               value={state.ceremony_address}
-              onChange={setValue} 
+              onChange={setValue}
               disabled={!state.enable_ceremony}
-          className={`p-2 border rounded-md ${
-            state.enable_ceremony ? "bg-white" : "bg-gray-100 text-gray-400"
-          }`}
+              className={`p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100 text-gray-400"
+                }`}
               placeholder="Rua Cardoso 123"
             />
 
             <div>
               <Switch label={"Festa"} color="pink" defaultChecked={state.enable_party}
-                onChange={(v) => setValue({currentTarget: {name: 'enable_party', value: v}})}  />
+                onChange={(v) => setValue({ currentTarget: { name: 'enable_party', value: v } })} />
             </div>
-            <div className="flex gap-4 ">
-              <div>
+            <div className="flex gap-4 flex-col md:flex-row md:items-end">
+              <div className="flex-1">
                 <Label htmlFor="tm">Data do evento</Label>
                 <Input
                   type="date"
@@ -484,11 +532,24 @@ export default function ConviteDetails({ isEdit }) {
                   onChange={setValue}
                   placeholder="Selecione a data"
                   disabled={!state.enable_party}
-                  />
+                  className={`p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400`}
+                />
               </div>
-              <div>
+              <div className="flex-1">
                 <Label htmlFor="tm">Hora do evento</Label>
-                <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' />
+                <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className={'p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400'} />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="party_end_time">Hora do fim do evento (opcional)</Label>
+                <Input
+                  type="time"
+                  id="party_end_time"
+                  name="party_end_time"
+                  value={state.party_end_time}
+                  onChange={setValue}
+                  disabled={!state.enable_party}
+                  className={`p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400`}
+                />
               </div>
             </div>
             <Label htmlFor="address">Nome do Local </Label>
@@ -501,70 +562,68 @@ export default function ConviteDetails({ isEdit }) {
               name="party_address" value={state.party_address}
               onChange={setValue}
               disabled={!state.enable_party}
-          className={`p-2 border rounded-md ${
-            state.enable_party ? "bg-white" : "bg-gray-100 text-gray-400"
-          }`}
+              className={`p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100 text-gray-400"
+                }`}
               placeholder="Rua Cardoso 123"
             />
 
           </FormCard>
 
-      
+
           <FormCard
             buttonLabel={null}
             title="Galeria de fotos"
           >
-  
+
             <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-4">
-          {/* Botão de adicionar foto */}
-          <div
-            {...getRootProps()}
-            className={`dropzone rounded-xl flex flex-col items-center justify-center border-2 border-dashed ${
-              isDragActive
-                ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
-                : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-            } w-full aspect-square p-2 transition`}
-            id="demo-upload"
-          >
-            <input {...getInputProps()} />
-            <div className="dz-message flex flex-col items-center m-0">
-              <div className="mb-1 flex justify-center">
-                <div className="flex h-5 w-5 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                  <svg
-                    className="fill-current"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M12 3c-.22 0-.42.09-.58.24L7.76 6.9c-.29.29-.29.77 0 1.06.29.29.77.29 1.06 0L11 5.78V16c0 .41.34.75.75.75s.75-.34.75-.75V5.78l2.18 2.18c.29.29.77.29 1.06 0 .29-.29.29-.77 0-1.06L12.58 3.24C12.42 3.09 12.22 3 12 3zM5 16c0-.41-.34-.75-.75-.75S3.5 15.59 3.5 16v3c0 1.24 1.01 2.25 2.25 2.25h12.5c1.24 0 2.25-1.01 2.25-2.25v-3c0-.41-.34-.75-.75-.75s-.75.34-.75.75v3c0 .41-.34.75-.75.75H6.25c-.41 0-.75-.34-.75-.75v-3z"
-                    />
-                  </svg>
+              {/* Botão de adicionar foto */}
+              <div
+                {...getRootProps()}
+                className={`dropzone rounded-xl flex flex-col items-center justify-center border-2 border-dashed ${isDragActive
+                  ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
+                  : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+                  } w-full aspect-square p-2 transition`}
+                id="demo-upload"
+              >
+                <input {...getInputProps()} />
+                <div className="dz-message flex flex-col items-center m-0">
+                  <div className="mb-1 flex justify-center">
+                    <div className="flex h-5 w-5 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                      <svg
+                        className="fill-current"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M12 3c-.22 0-.42.09-.58.24L7.76 6.9c-.29.29-.29.77 0 1.06.29.29.77.29 1.06 0L11 5.78V16c0 .41.34.75.75.75s.75-.34.75-.75V5.78l2.18 2.18c.29.29.77.29 1.06 0 .29-.29.29-.77 0-1.06L12.58 3.24C12.42 3.09 12.22 3 12 3zM5 16c0-.41-.34-.75-.75-.75S3.5 15.59 3.5 16v3c0 1.24 1.01 2.25 2.25 2.25h12.5c1.24 0 2.25-1.01 2.25-2.25v-3c0-.41-.34-.75-.75-.75s-.75.34-.75.75v3c0 .41-.34.75-.75.75H6.25c-.41 0-.75-.34-.75-.75v-3z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-pink text-center">
+                    Adicionar foto
+                  </span>
                 </div>
               </div>
-              <span className="text-xs font-medium text-pink text-center">
-                Adicionar foto
-              </span>
-            </div>
-          </div>
 
-          {/* Imagens adicionadas */}
-          {images.map((imgObj, index) => (
-            <div key={'gallery_' + index} className="relative w-full aspect-square  rounded-md overflow-hidden border-2 border-gray-300">
-              <div onClick={() =>removeItem(index)} className="cursor-pointer w-5 h-5 bg-[#000000AB] absolute top-0.5 right-0.5 flex items-center justify-center rounded-4xl">
-                <FaX className="text-white text-xs"/>
-              </div>
-              <img
-                src={imgObj.url}
-                alt={`Foto ${index}`}
-                className="object-cover w-full h-full"
-              />
+              {/* Imagens adicionadas */}
+              {images.map((imgObj, index) => (
+                <div key={'gallery_' + index} className="relative w-full aspect-square  rounded-md overflow-hidden border-2 border-gray-300">
+                  <div onClick={() => removeItem(index)} className="cursor-pointer w-5 h-5 bg-[#000000AB] absolute top-0.5 right-0.5 flex items-center justify-center rounded-4xl">
+                    <FaX className="text-white text-xs" />
+                  </div>
+                  <img
+                    src={imgObj.url}
+                    alt={`Foto ${index}`}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
           </FormCard>
 
 
@@ -606,48 +665,8 @@ export default function ConviteDetails({ isEdit }) {
               <Input type="text" id="observations" value={state.observations} name="observations"
                 onChange={setValue} placeholder="Vá de uber" />
             </div>
-            <div>  
-              <Label>Instagram dos organizadores <span className="text-pink">(opcional)</span></Label>
-              <div className="flex flex-col gap-2">
-                {instagramFields.map((value, index) => (
-                    <Input
-                      key={'instagram-' + index}
-                      type="text"
-                      id={`instagram-${index}`}
-                      placeholder="@instagram"
-                      value={value}
-                      onChange={(e) => handleChangeField(index, e.target.value)}
-                    />
-                  ))}
 
-
-              </div>
-              <div className="flex justify-between">
-                <Link
-                  to="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleAddField();
-                  }}
-                  className="text-pink text-[14px] font-semibold"
-                >
-                  Adicionar outro
-                </Link>
-                {instagramFields.length > 1 &&
-                  <Link
-                    to="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleRemoveField();
-                    }}
-                    className="text-brand-500 text-[14px] font-semibold"
-                  >
-                    Remover
-                  </Link>
-                }
-              </div>
-            </div> 
-            <div> 
+            <div>
               <Label>Música de fundo (YouTube) <span className="text-pink">(opcional)</span></Label>
               <Input
                 type="text"
@@ -662,24 +681,28 @@ export default function ConviteDetails({ isEdit }) {
               <Label>Iniciar música no segundo <span className="text-pink">(opcional)</span></Label>
               <Input type="text" value={state.start_background_music} name="start_background_music"
                 onChange={setValue} id="musicSegundo" placeholder="46" />
-              
+
             </div>
+
+            <button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow">
+              Excluir convite
+            </button>
           </FormCard>
 
 
-        </div>
+        </div >
 
         <div className="sticky p-3 flex right-0 bottom-2 w-full">
           <div className="flex-1 p-3 mx-2 bg-brand-50 shadow rounded-2xl">
             {(state.status == 'publish' && state?.url && !state.url.includes('page_id=')) && <div className="flex items-center justify-between bg-brand-200 rounded-2xl p-3 mb-3 text-sm text-brand-600">
               <a href={state.url} target={'_blank'} className="font-semibold underline">
-              {state?.url}
+                {state?.url}
               </a>
-              <FaShare/>
+              <FaShare />
             </div>}
             <div className="flex justify-between items-center">
               <Switch label={"Ativar convite"} color="pink" defaultChecked={state.status == 'publish'}
-                onChange={(v) => setValue({currentTarget: {name: 'status', value: !!v ? 'publish' : 'draft'}})}  />
+                onChange={(v) => setValue({ currentTarget: { name: 'status', value: !!v ? 'publish' : 'draft' } })} />
               <Button className="px-10" loading={saveLoading} onClick={handleSave} >
                 <FaFloppyDisk />
                 Salvar
@@ -687,7 +710,7 @@ export default function ConviteDetails({ isEdit }) {
             </div>
           </div>
         </div>
-      </section>
+      </section >
     </>
   );
 }
