@@ -1,12 +1,13 @@
 import Button from "../ui/button/Button";
 import casamento from "../../../casamento-.png";
-import { useNavigate } from "react-router";
-import { FaArrowUpRightFromSquare, FaImage, FaLink, FaShare, FaShareNodes } from "react-icons/fa6";
+import { Link, useNavigate } from "react-router";
+import { FaArrowUpRightFromSquare, FaCheck, FaCopy, FaImage, FaLink, FaShare, FaShareNodes } from "react-icons/fa6";
 import Switch from "./switch/Switch";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { errorControl } from "../../services/utils";
 import api from "../../services/api";
+import useClipboard from "../../hooks/useClipboard";
 
 const CardConvite = ({ data }) => {
   const navigate = useNavigate();
@@ -47,6 +48,8 @@ const CardConvite = ({ data }) => {
     }
   }
 
+  const { isCopied, copy } = useClipboard();
+
   return (
     <div className="grid grid-cols-3 bg-white rounded-2xl shadow-md overflow-hidden p-4 w-full max-w-3xl">
       {/* Imagem */}
@@ -68,40 +71,37 @@ const CardConvite = ({ data }) => {
       <div className="col-span-2 flex flex-col justify-between p-4">
         {/* Título e status */}
         <div className="flex flex-col gap-2">
-          {data.status == 'publish' ?
-            <a href={data.slug} target="_blank" className="flex items-center gap-2 underline">
-              <h2 className="text-2xl font-bold">{data.title}</h2>
-              <FaArrowUpRightFromSquare className="text-lg" />
-            </a>
-            :
             <h2 className="text-2xl font-bold">{data.title}</h2>
-          }
           <div className="flex gap-2 items-center">
-            <span className={"text-xs self-start text-center text-white rounded-md px-2 py-1 " + (status == 'publish' ? 'bg-pink-500' : 'bg-brand-500')}>
-              {status == 'publish' ? 'Ativo' : 'Rascunho'}
-            </span>
-            <Switch color="pink" defaultChecked={status == 'publish'}
-              onChange={(v) => onChangeStatus(v)} />
+            {/* <Switch color="pink" defaultChecked={status == 'publish'}
+              onChange={(v) => onChangeStatus(v)} /> */}
           </div>
         </div>
 
-        {/* Confirmações e Recebidos */}
-        <div className="flex justify-between text-gray-500 text-sm my-4">
-          <div className="flex flex-col items-center">
-            <span>Confirmações</span>
-            <span className="text-black text-xl font-bold">{data?.totals?.confirmed_count || 0}</span>
-          </div>
-          {/* <div className="flex flex-col items-center">
-            <span>Recebidos</span>
-            <span className="text-black text-xl font-bold">{data?.gifts || 0}</span>
-          </div> */}
-        </div>
 
         {/* Botão Editar */}
-        <div className="flex gap-2">
-          <Button className="flex-1 text-white font-bold py-2 rounded-xl" onClick={() => navigate('/admin/convites/' + data.id)}>
-            Editar / Confirmações
+        <div className="flex gap-2 mt-2">
+          <a href={data.slug} target="_blank" className="flex-1">
+            <Button size="sm" className="flex-1 text-white w-full font-bold text-xs rounded-xl">
+            Ver convite <FaArrowUpRightFromSquare/>
+            </Button>
+          </a>
+          <Button size="sm" className="bg-pink hover:bg-pink-600 text-white font-bold rounded-xl w-[60px]" onClick={() => copy(data.slug)}>
+            {isCopied ? <FaCheck/> : <FaCopy />}
           </Button>
+        </div>
+        
+        <Link to={'/admin/convites/'+ data.id + '?tab=confirmation'} className="w-full mt-2">
+            <Button className="flex-1 text-white w-full font-bold py-2 rounded-xl bg-pink hover:bg-pink-600 " >
+          Confirmações ({data?.totals?.confirmed_count || 0})
+            </Button>
+          </Link>
+        <div className="flex gap-2 mt-2">
+          <Link to={'/admin/convites/'+ data.id} className="flex-1">
+            <Button className="flex-1 text-white w-full font-bold py-2 rounded-xl" >
+              Editar
+            </Button>
+          </Link>
           <Button className="bg-pink hover:bg-pink-600 text-white font-bold py-2 rounded-xl w-[60px]" onClick={() => shareLink({ url: data.slug, title: 'Você foi convidado!', text: `O evento mais importante do ano está chegando e é com muito prazer que eu te convido para esse dia tão especial\n\nClique aqui para acessar o convite e confirme sua presença. 👇 ` })}>
             <FaShareNodes />
           </Button>

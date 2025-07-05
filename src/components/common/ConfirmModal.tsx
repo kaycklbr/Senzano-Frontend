@@ -27,7 +27,7 @@ export function ConfirmModal({
             </div>
 
             {open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50">
                     <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
                         <h2 className="text-lg font-semibold mb-2">{title}</h2>
                         <p className="text-sm text-gray-600 mb-4">{description}</p>

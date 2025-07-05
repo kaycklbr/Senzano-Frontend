@@ -12,7 +12,7 @@ import { UserIcon } from "../../icons";
 import Switch from "../../components/form/switch/Switch";
 
 import { Link, useNavigate, useParams } from "react-router";
-import { FaAngleLeft, FaFloppyDisk, FaIcons, FaLink, FaLinkSlash, FaShapes, FaShare, FaX } from "react-icons/fa6";
+import { FaAngleLeft, FaChevronRight, FaFloppyDisk, FaIcons, FaLink, FaLinkSlash, FaShapes, FaShare, FaX } from "react-icons/fa6";
 
 import { useDropzone } from "react-dropzone";
 import api from "../../services/api";
@@ -20,6 +20,15 @@ import { login, setTokens } from "../../auth/auth";
 import { toast } from "react-toastify";
 import Button from "../ui/button/Button";
 import { ConfirmModal } from "./ConfirmModal";
+import { errorControl } from "../../services/utils";
+import Spinner from "./Spinner";
+import Presentes from "../../pages/Convites/FormCards/Presentes";
+import Confirmacao from "../../pages/Convites/FormCards/Confirmacao";
+import Informacoes from "../../pages/Convites/FormCards/Informacoes";
+import Localizacao from "../../pages/Convites/FormCards/Localizacao";
+import Galeria from "../../pages/Convites/FormCards/Galeria";
+import InfoFinal from "../../pages/Convites/FormCards/Final";
+import Modelos from "../../pages/Convites/FormCards/Modelos";
 // import Input from "../../components/form/form-elements/DefaultInputs"
 export default function ConviteDetails({ isEdit }) {
   const [step, setStep] = useState(0);
@@ -37,32 +46,7 @@ export default function ConviteDetails({ isEdit }) {
   const [confirmPassword, setConfirmPassword] = useState();
   const [loading, setLoading] = useState<boolean>(false);
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
-
-  function handleAddField() {
-    setInstagramFields([...instagramFields, ""]);
-  }
-
-  function handleRemoveField() {
-    setInstagramFields(instagramFields.slice(0, -1));
-  }
-
-  function handleChangeField(index: number, value: string) {
-    const newFields = [...instagramFields];
-    newFields[index] = value;
-    setInstagramFields(newFields);
-  }
-  // const nextStep = () => setStep((prev) => prev + 1);
-  const nextStep = (e: React.FormEvent) => {
-    console.log("🟢 Botão clicado - tentando ir para o próximo passo...", state);
-    window.scrollTo(0, 0)
-    setStep((prev) => {
-      console.log("🔄 Step anterior:", prev);
-      const newStep = prev + 1;
-      console.log("✅ Novo step:", newStep);
-      return newStep;
-    });
-  };
-
+  const [modelsLoading, setModelsLoading ] = useState(false);
 
   const [mainImage, setMainImage] = useState<any>();
   const handleMainDrop = (acceptedFiles: File[]) => {
@@ -103,15 +87,6 @@ export default function ConviteDetails({ isEdit }) {
     },
   });
 
-  const toggleIsLogin = () => {
-    setIsLogin((prev) => !prev);
-  };
-  function handleBackStep() {
-    setStep(prev => prev - 1);
-  }
-
-
-
   const [state, setState] = useState({
     title: '',
     event_date: '',
@@ -121,11 +96,13 @@ export default function ConviteDetails({ isEdit }) {
     hide_acompanhante: '',
     ceremony_date: '',
     ceremony_time: '',
+    ceremony_end_time: '',
     ceremony_location: '',
     ceremony_address: '',
     enable_party: true,
     party_date: '',
     party_time: '',
+    party_end_time: '',
     party_location: '',
     party_address: '',
     slug: '',
@@ -155,8 +132,10 @@ export default function ConviteDetails({ isEdit }) {
   useEffect(() => {
 
     const fetchTemplate = async () => {
+      setModelsLoading(true);
       const { data } = await api.get('convitin/v1/templates');
       setTemplates(data);
+      setModelsLoading(false);
     }
 
     fetchTemplate();
@@ -169,14 +148,6 @@ export default function ConviteDetails({ isEdit }) {
     setState(prev => ({ ...prev, [name]: value }));
   }
 
-  /*************  ✨ Windsurf Command ⭐  *************/
-  /**
-   * Removes an image from the list of images based on the provided index.
-   *
-   * @param {number} indexToRemove - The index of the image to be removed.
-   */
-
-  /*******  9203510b-f2bd-4baf-a65b-1ea1fdd0465d  *******/
   const removeItem = (indexToRemove) => {
     setImages(prevItems => prevItems.filter((_, index) => index !== indexToRemove));
   };
@@ -274,8 +245,8 @@ export default function ConviteDetails({ isEdit }) {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`convitin/v1/delete/${params.id}`);
-      toast.success(`Convite excluído com sucesso! ID: ${params.id}`);
+      await api.delete(`convitin/v1/convites/${params.id}`);
+      toast.success(`Convite excluído com sucesso!`);
       navigate("/admin/convites");
     } catch (e) {
       toast.error(errorControl(e));
@@ -288,409 +259,68 @@ export default function ConviteDetails({ isEdit }) {
         <div className="w-full h-full mt-3 bg-white 
         md:h-auto rounded-xl shadow-md
         p-4">
-          <FormCard
-            title="Modelos"
-            buttonLabel={null}
-          >
-            <div className="flex gap-3 overflow-x-auto">
-              {templates.map((t, index) => {
-                const isSelected = state.template_id === t.id
-                return (
-
-                  <div key={'template_' + index}
-                    onClick={() => setState(prev => ({ ...prev, template_id: t.id }))}
-                    role="button"
-                    tabIndex={0}
-                    className={"flex flex-col items-center min-w-[130px] max-w-[130px] min-h-[180px]  cursor-pointer border rounded-md p-2 transition-all" + (isSelected ? "border-brand-500 bg-pink-50" : "border-gray-300 hover:bg-gray-50")}>
-                    <img
-                      src={t.main_image}
-                      alt={t.title}
-                      className="object-cover w-[130px] h-[180px] rounded-md border-1 border-gray-300"
-                    />
-                    <h5 className="text-sm text-black font-bold text-center">{t.title}</h5>
-                    <div
-                      className={
-                        "py-1 px-2 text-white text-xs rounded-2xl transition-colors " +
-                        (isSelected ? "bg-brand-500" : "bg-pink-300 hover:bg-pink-400")
-                      }
-                    >
-                      {isSelected ? "Selecionado" : "Selecionar"}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </FormCard>
-
+          <Modelos
+            templates={templates}
+            modelsLoading={modelsLoading}
+            selectedTemplateId={state.template_id}
+            onSelect={(id) => setState((prev) => ({ ...prev, template_id: id }))}
+          />
         </div>
 
         <div className="w-full h-full mt-3 bg-white 
         md:h-auto rounded-xl shadow-md
         p-4">
-          <FormCard
-            title="Lista de presentes"
-            buttonLabel={null}
-          >
-            <Switch label={"Ativar"} color="pink" defaultChecked={state.enable_gift}
-              onChange={(v) => setValue({ currentTarget: { name: 'enable_gift', value: v } })} />
 
-            <Label>Link da lista</Label>
-            <Input
-              type="text"
-              name="gift_link"
-              value={state.gift_link}
-              onChange={setValue}
-              placeholder="https://..."
-            />
-          </FormCard>
+          <Presentes
+            enableGift={state.enable_gift}
+            giftLink={state.gift_link}
+            onChange={setValue}
+            onSwitchChange={(v) =>
+              setValue({
+                currentTarget: { name: "enable_gift", value: v },
+              })
+            }
+          />
 
           <hr className="my-3" />
 
-          <FormCard
-            title="Lista de confirmação"
-            buttonLabel={null}
-          >
-            <Switch label={"Permitir acompanhantes"} color="pink" defaultChecked={state.hide_acompanhante != 'hide-acompanhante'}
-              onChange={(v) => setValue({ currentTarget: { name: 'hide_acompanhante', value: !v ? 'hide-acompanhante' : '' } })} />
-          </FormCard>
+          <Confirmacao
+            allowGuests={state.hide_acompanhante !== 'hide-acompanhante'}
+            onToggleAllowGuests={(v) =>
+              setValue({
+                currentTarget: {
+                  name: "hide_acompanhante",
+                  value: !v ? "hide-acompanhante" : "",
+                },
+              })
+            }
+          />
 
         </div>
 
         <div ref={parent} className="w-full h-full mt-3 bg-white 
         md:h-auto rounded-xl shadow-md
         p-4">
-          <FormCard
-            title="Informações do Convite"
-            buttonLabel={null}
-          >
-            <div>
-              <Label>Nome do evento</Label>
-              <Input
-                type="text"
-                name="title"
-                required
-                value={state.title}
-                onChange={setValue}
-                placeholder="João e Maria, M & H, ..."
-              />
-            </div>
+          <Informacoes
+            title={state.title}
+            description={state.description}
+            eventDate={state.event_date}
+            mainImage={mainImage}
+            onChange={setValue}
+            onImageDrop={handleMainDrop}
+            onRemoveImage={() => setMainImage(null)}
+          />
 
-            <div>
-              <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
+          <Localizacao state={state} onChange={setValue} />
+          <Galeria images={images} onDrop={handleDrop} onRemove={removeItem} />
 
-              <div
-                {...getMainRootProps()}
-                className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
-                    ${isMainDragActive
-                    ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
-                    : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-                  }
-                  `}
-                id="demo-upload"
-              >
-                {/* Hidden Input */}
-                <input {...getMainInputProps()} />
-
-                <div className="dz-message flex flex-col items-center m-0!">
-                  {/* Icon Container */}
-                  <div className="mb-[22px] flex justify-center">
-                    <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      <svg
-                        className="fill-current"
-                        width="29"
-                        height="28"
-                        viewBox="0 0 29 28"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M14.5019 3.91699C14.2852 3.91699 14.0899 4.00891 13.953 4.15589L8.57363 9.53186C8.28065 9.82466 8.2805 10.2995 8.5733 10.5925C8.8661 10.8855 9.34097 10.8857 9.63396 10.5929L13.7519 6.47752V18.667C13.7519 19.0812 14.0877 19.417 14.5019 19.417C14.9161 19.417 15.2519 19.0812 15.2519 18.667V6.48234L19.3653 10.5929C19.6583 10.8857 20.1332 10.8855 20.426 10.5925C20.7188 10.2995 20.7186 9.82463 20.4256 9.53184L15.0838 4.19378C14.9463 4.02488 14.7367 3.91699 14.5019 3.91699ZM5.91626 18.667C5.91626 18.2528 5.58047 17.917 5.16626 17.917C4.75205 17.917 4.41626 18.2528 4.41626 18.667V21.8337C4.41626 23.0763 5.42362 24.0837 6.66626 24.0837H22.3339C23.5766 24.0837 24.5839 23.0763 24.5839 21.8337V18.667C24.5839 18.2528 24.2482 17.917 23.8339 17.917C23.4197 17.917 23.0839 18.2528 23.0839 18.667V21.8337C23.0839 22.2479 22.7482 22.5837 22.3339 22.5837H6.66626C6.25205 22.5837 5.91626 22.2479 5.91626 21.8337V18.667Z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-
-                  <span className="font-medium underline text-theme-sm text-pink">
-                    Escolha sua foto
-                  </span>
-
-                </div>
-              </div>
-            </div>
-
-            {mainImage && (
-              <div className="mt-4 relative">
-                <div onClick={() => setMainImage(null)} className="cursor-pointer w-7 h-7 bg-[#000000AB] absolute top-2 right-2 flex items-center justify-center rounded-4xl">
-                  <FaX className="text-white text-sm" />
-                </div>
-                <img
-                  src={mainImage.url}
-                  alt="Preview"
-                  className="max-w-full h-auto rounded-xl border"
-                />
-              </div>
-            )}
-
-            {/* <div > */}
-            <Label htmlFor="tm">Data do evento</Label>
-            <Input
-              type="date"
-              name="event_date"
-              required
-              value={state.event_date}
-              onChange={setValue}
-              placeholder="Selecione a data"
-            />
-            {/* </div> */}
-
-            <div>
-              <Label htmlFor="eventPhrase">Frase inicial</Label>
-              <Input
-                type="text"
-                name="description"
-                value={state.description}
-                onChange={setValue}
-                placeholder="Venha celebrar conosco nessa festa..."
-              />
-            </div>
-          </FormCard>
-
-          <FormCard
-            buttonLabel={null}
-            title="Localização"
-          >
-            <div>
-              <Switch label={"Cerimônia"} color="pink" defaultChecked={state.enable_ceremony}
-                onChange={(v) => setValue({ currentTarget: { name: 'enable_ceremony', value: v } })} />
-            </div>
-            <div className="flex gap-4 flex-col md:flex-row md:items-end ">
-              <div className="flex-1">
-                <Label htmlFor="tm">Data do evento</Label>
-                <Input
-                  type="date"
-                  name="ceremony_date"
-                  value={state.ceremony_date}
-                  required={state.enable_ceremony}
-                  onChange={setValue}
-                  disabled={!state.enable_ceremony}
-                  placeholder="Selecione a data"
-                  className={`p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400`}
-                />
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="tm">Hora do evento</Label>
-                <Input type="time" id="tm"
-                  name="ceremony_time"
-                  required={state.enable_ceremony}
-                  onChange={setValue}
-                  value={state.ceremony_time}
-                  disabled={!state.enable_ceremony}
-                  className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' />
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="ceremony_end_time">Hora do fim do evento (opcional)</Label>
-                <Input
-                  type="time"
-                  id="ceremony_end_time"
-                  name="ceremony_end_time"
-                  value={state.ceremony_end_time}
-                  onChange={setValue}
-                  disabled={!state.enable_ceremony}
-                  className={`p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400`}
-                />
-              </div>
-            </div>
-            <Label htmlFor="address">Nome do Local </Label>
-            <Input type="text" id="address" required={state.enable_ceremony} value={state.ceremony_location} name="ceremony_location" onChange={setValue} disabled={!state.enable_ceremony} className='p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-            <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
-            <Input
-              type="text"
-              name="ceremony_address"
-              required={state.enable_ceremony}
-              value={state.ceremony_address}
-              onChange={setValue}
-              disabled={!state.enable_ceremony}
-              className={`p-2 border rounded-md ${state.enable_ceremony ? "bg-white" : "bg-gray-100 text-gray-400"
-                }`}
-              placeholder="Rua Cardoso 123"
-            />
-
-            <div>
-              <Switch label={"Festa"} color="pink" defaultChecked={state.enable_party}
-                onChange={(v) => setValue({ currentTarget: { name: 'enable_party', value: v } })} />
-            </div>
-            <div className="flex gap-4 flex-col md:flex-row md:items-end">
-              <div className="flex-1">
-                <Label htmlFor="tm">Data do evento</Label>
-                <Input
-                  type="date"
-                  name="party_date"
-                  value={state.party_date}
-                  required={state.enable_party}
-                  onChange={setValue}
-                  placeholder="Selecione a data"
-                  disabled={!state.enable_party}
-                  className={`p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400`}
-                />
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="tm">Hora do evento</Label>
-                <Input type="time" id="tm" required={state.enable_party} name="party_time" value={state.party_time} onChange={setValue} disabled={!state.enable_party} className={'p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400'} />
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="party_end_time">Hora do fim do evento (opcional)</Label>
-                <Input
-                  type="time"
-                  id="party_end_time"
-                  name="party_end_time"
-                  value={state.party_end_time}
-                  onChange={setValue}
-                  disabled={!state.enable_party}
-                  className={`p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400`}
-                />
-              </div>
-            </div>
-            <Label htmlFor="address">Nome do Local </Label>
-            <Input type="text" id="address" required={state.enable_party} name="party_location" value={state.party_location} onChange={setValue} disabled={!state.enable_party} className='p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100"} text-gray-400' placeholder="Clube de eventos" />
-            <Label htmlFor="fulladdress">Rua, Número, Cidade, Estado</Label>
-            <Input
-              type="text"
-              id="fullAddress"
-              required={state.enable_party}
-              name="party_address" value={state.party_address}
-              onChange={setValue}
-              disabled={!state.enable_party}
-              className={`p-2 border rounded-md ${state.enable_party ? "bg-white" : "bg-gray-100 text-gray-400"
-                }`}
-              placeholder="Rua Cardoso 123"
-            />
-
-          </FormCard>
-
-
-          <FormCard
-            buttonLabel={null}
-            title="Galeria de fotos"
-          >
-
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-4">
-              {/* Botão de adicionar foto */}
-              <div
-                {...getRootProps()}
-                className={`dropzone rounded-xl flex flex-col items-center justify-center border-2 border-dashed ${isDragActive
-                  ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
-                  : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-                  } w-full aspect-square p-2 transition`}
-                id="demo-upload"
-              >
-                <input {...getInputProps()} />
-                <div className="dz-message flex flex-col items-center m-0">
-                  <div className="mb-1 flex justify-center">
-                    <div className="flex h-5 w-5 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      <svg
-                        className="fill-current"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 3c-.22 0-.42.09-.58.24L7.76 6.9c-.29.29-.29.77 0 1.06.29.29.77.29 1.06 0L11 5.78V16c0 .41.34.75.75.75s.75-.34.75-.75V5.78l2.18 2.18c.29.29.77.29 1.06 0 .29-.29.29-.77 0-1.06L12.58 3.24C12.42 3.09 12.22 3 12 3zM5 16c0-.41-.34-.75-.75-.75S3.5 15.59 3.5 16v3c0 1.24 1.01 2.25 2.25 2.25h12.5c1.24 0 2.25-1.01 2.25-2.25v-3c0-.41-.34-.75-.75-.75s-.75.34-.75.75v3c0 .41-.34.75-.75.75H6.25c-.41 0-.75-.34-.75-.75v-3z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <span className="text-xs font-medium text-pink text-center">
-                    Adicionar foto
-                  </span>
-                </div>
-              </div>
-
-              {/* Imagens adicionadas */}
-              {images.map((imgObj, index) => (
-                <div key={'gallery_' + index} className="relative w-full aspect-square  rounded-md overflow-hidden border-2 border-gray-300">
-                  <div onClick={() => removeItem(index)} className="cursor-pointer w-5 h-5 bg-[#000000AB] absolute top-0.5 right-0.5 flex items-center justify-center rounded-4xl">
-                    <FaX className="text-white text-xs" />
-                  </div>
-                  <img
-                    src={imgObj.url}
-                    alt={`Foto ${index}`}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              ))}
-            </div>
-          </FormCard>
-
-
-          <FormCard
-            title="Detalhes finais"
-            buttonLabel={null}
-          >
-            <div>
-              <Label>URL do convite</Label>
-              <div className="flex">
-                <div
-                  className="text-gray-600 shadow-theme-xs text-xs flex items-center px-3 border rounded-l-md border-r-0 border-gray-300  bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
-                >
-                  https://convitin.com.br/
-                </div>
-                <Input
-                  name="slug"
-                  value={state.slug}
-                  required
-                  className="rounded-l-none"
-                  onChange={setValue}
-                  placeholder="joao-e-maria"
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Dress Code <span className="text-pink">(opcional)</span></Label>
-              <Input
-                type="text"
-                id="dressCode"
-                name="dress_code"
-                value={state.dress_code}
-                onChange={setValue}
-                placeholder="Terno, smoking, casual, ..."
-              />
-            </div>
-            <div>
-              <Label>Observações <span className="text-pink">(opcional)</span></Label>
-              <Input type="text" id="observations" value={state.observations} name="observations"
-                onChange={setValue} placeholder="Vá de uber" />
-            </div>
-
-            <div>
-              <Label>Música de fundo (YouTube) <span className="text-pink">(opcional)</span></Label>
-              <Input
-                type="text"
-                id="music"
-                name="background_music"
-                value={state.background_music}
-                onChange={setValue}
-                placeholder="https://www.youtube.com/watch?"
-              />
-            </div>
-            <div>
-              <Label>Iniciar música no segundo <span className="text-pink">(opcional)</span></Label>
-              <Input type="text" value={state.start_background_music} name="start_background_music"
-                onChange={setValue} id="musicSegundo" placeholder="46" />
-
-            </div>
-
-
-            <ConfirmModal
-              onConfirm={handleDelete}
-              title="Excluir convite?"
-              description="Você tem certeza que deseja excluir este convite? Essa ação é irreversível."
-              trigger={<button className="bg-red-600 text-white px-4 py-2 rounded">Excluir convite</button>}
-            />
-          </FormCard>
+          <InfoFinal
+            state={state}
+            setValue={setValue}
+            onDelete={handleDelete}
+            saveLoading={saveLoading}
+            onSave={handleSave}
+          />
 
 
         </div >
@@ -703,10 +333,10 @@ export default function ConviteDetails({ isEdit }) {
               </a>
               <FaShare />
             </div>}
-            <div className="flex justify-between items-center">
-              <Switch label={"Ativar convite"} color="pink" defaultChecked={state.status == 'publish'}
-                onChange={(v) => setValue({ currentTarget: { name: 'status', value: !!v ? 'publish' : 'draft' } })} />
-              <Button className="px-10" loading={saveLoading} onClick={handleSave} >
+            <div className="flex justify-end items-center">
+              {/* <Switch label={"Ativar convite"} color="pink" defaultChecked={state.status == 'publish'}
+                onChange={(v) => setValue({ currentTarget: { name: 'status', value: !!v ? 'publish' : 'draft' } })} /> */}
+              <Button className="px-10 w-full" loading={saveLoading} onClick={handleSave} >
                 <FaFloppyDisk />
                 Salvar
               </Button>

@@ -11,7 +11,7 @@ import { UserIcon } from "../../icons";
 
 import Switch from "../form/switch/Switch";
 
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { FaAngleLeft } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 
@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import { ConfirmModal } from "./ConfirmModal";
+import { errorControl } from "../../services/utils";
 // import Input from "../../components/form/form-elements/DefaultInputs"
 export default function ConviteConfirmations() {
   const [step, setStep] = useState(0);
@@ -137,18 +138,18 @@ export default function ConviteConfirmations() {
   const [loading, setLoading] = useState(false);
 
   const params = useParams();
-  useEffect(() => {
-    const fetchConfirmations = async () => {
-      setLoading(true);
-      try {
-        const { data } = await api.get('convitin/v1/submissions/' + params.id);
-        setConfirmations(data);
-      } catch (e) {
+  const fetchConfirmations = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get('convitin/v1/submissions/' + params.id);
+      setConfirmations(data);
+    } catch (e) {
 
-      } finally {
-        setLoading(false);
-      }
+    } finally {
+      setLoading(false);
     }
+  }
+  useEffect(() => {
 
     fetchConfirmations();
   }, []);
@@ -159,11 +160,12 @@ export default function ConviteConfirmations() {
     setState(prev => ({ ...prev, [name]: value }));
   }
 
-  const handleDelete = async () => {
+  const handleDelete = async (id) => {
     try {
-      await api.delete(`convitin/v1/delete/${params.id}`);
-      toast.success(`Convite excluído com sucesso! ID: ${params.id}`);
-      navigate("/admin/convites");
+      await api.post(`convitin/v1/convites/${params.id}/submissions/${id}`);
+      toast.success(`Confirmação excluída com sucesso!`);
+      // navigate("/admin/convites");
+      fetchConfirmations();
     } catch (e) {
       toast.error(errorControl(e));
     }
@@ -334,9 +336,9 @@ export default function ConviteConfirmations() {
                       <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
 
                         <ConfirmModal
-                          onConfirm={() => handleDelete(item.id)}
-                          title="Excluir convite?"
-                          description="Tem certeza que deseja excluir este convite? Essa ação é irreversível."
+                          onConfirm={() => handleDelete(c.id)}
+                          title="Excluir confirmação?"
+                          description="Tem certeza que deseja excluir esta confirmação? Essa ação é irreversível."
                           trigger={
                             <button className="text-red-600 hover:text-red-800 font-medium flex items-center gap-1">
                               <FaTrash />

@@ -5,9 +5,9 @@ interface FormCardProps {
   stepText?: string;
   title: string;
   children: React.ReactNode;
-  buttonLabel?: string;
+  buttonLabel?: string | null;
   buttonLoading?: boolean;
-  onSubmit?: () => void;
+  onSubmit?: (e:any) => void;
   icon?: React.ReactNode;
   footer?: React.ReactNode;
   onBack?: () => void;
@@ -31,7 +31,7 @@ const FormCard = ({ stepText, title, children, buttonLabel= 'Próximo passo', b
 
 
         {buttonLabel != null &&
-        <div className="flex  items-center justify-center gap-4 mt-6">
+        <div className="flex  items-center justify-center gap-4 mt-6 pb-4">
 
           {icon && (
             <button 

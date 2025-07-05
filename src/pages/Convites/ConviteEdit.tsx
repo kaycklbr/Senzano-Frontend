@@ -12,9 +12,9 @@ import InputStates from "../../components/form/form-elements/InputStates";
 import PageMeta from "../../components/common/PageMeta";
 import ConviteDetails from "../../components/common/ConviteDetails";
 import { CheckCircleIcon, CheckLineIcon, DocsIcon, InfoIcon, UserIcon } from "../../icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ConviteConfirmations from "../../components/common/ConviteConfirmations";
-import { useNavigate, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import api from "../../services/api";
 import { toast } from "react-toastify";
 
@@ -26,35 +26,43 @@ const tabStyle = {
 
 export default function ConviteEdit() {
 
-  const [tab, setTab] = useState('info');
   const params = useParams();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get('tab') || 'info');
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = useState(params?.id != 'criar');
 
 
+  useEffect(() => {
+    setIsEdit(params?.id != 'criar');
+  }, [params]);
 
+  useEffect(() => {
+    setTab(searchParams.get('tab') || 'info');
+  }, [ searchParams ]);
 
   return (
     <div>
-      <PageBreadcrumb pageTitle={(isEdit ? 'Editar' : 'Criar') + " convite"} />
+      <PageBreadcrumb onBack={() => navigate('/admin/convites')} pageTitle={(isEdit ? 'Editar' : 'Criar') + " convite"} />
 
       <div className="">
         {isEdit && <ul className="flex md:min-w-[200px] gap-2 md:flex-wrap pb-2 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
           <li>
-            <a href="#"
-              onClick={() => setTab('info')}
+            <Link
+              to={('?tab=info')}
               className={"inline-flex items-center shadow px-4 py-3 rounded-lg w-full " + (tab == 'info' ? tabStyle.selected : tabStyle.unselected)} aria-current="page">
               <DocsIcon className={"me-2 text-xl " + (tab == 'info' ? 'text-white' : '')} />
               Informações
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#"
-              onClick={() => setTab('confirmation')}
+            <Link
+              to={('?tab=confirmation')}
               className={"inline-flex items-center shadow px-4 py-3 whitespace-nowrap md:whitespace-normal rounded-lg w-full " + (tab == 'confirmation' ? tabStyle.selected : tabStyle.unselected)}>
               <CheckLineIcon className={"me-2 text-xl " + (tab == 'confirmation' ? 'text-white' : '')} />
               Confirmações de presença
-            </a>
+            </Link>
           </li>
         </ul>}
 
