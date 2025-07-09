@@ -2,10 +2,12 @@ import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import FormCard from "../../../components/common/FormCard";
 import Input from "../../../components/form/input/InputField";
 import Label from "../../../components/form/Label";
+import Editor, { BtnBold, BtnBulletList, BtnItalic, BtnNumberedList, BtnRedo, BtnStrikeThrough, BtnUnderline, BtnUndo, Toolbar } from 'react-simple-wysiwyg';
 
 interface Props {
   hideDelete?: boolean;
   hideSlug?: boolean;
+  gettingStarted?: boolean;
   state: any;
   setValue: (event: any) => void;
   onDelete?: () => void;
@@ -23,6 +25,7 @@ export default function InfoFinal({
   state,
   setValue,
   onDelete,
+  gettingStarted,
   onSubmit,
   onBack,
   icon,
@@ -70,18 +73,40 @@ export default function InfoFinal({
           placeholder="Terno, smoking, casual, ..."
         />
       </div>
-      <div>
+      <div className="list-decorators">
         <Label>
-          Observações <span className="text-pink">(opcional)</span>
+          Detalhes <span className="text-pink">(opcional)</span>
         </Label>
-        <Input
-          type="text"
-          id="observations"
-          value={state.observations}
-          name="observations"
-          onChange={setValue}
-          placeholder="Vá de uber"
-        />
+        {
+            gettingStarted ?
+            <Input
+              type="text"
+              id="observations"
+              value={state.observations}
+              name="observations"
+              onChange={setValue}
+              placeholder="Vá de uber"
+            />
+            :
+            <Editor style={{color: 'black'}} value={state.observations} onChange={e => setValue({
+                currentTarget: {
+                  name: "observations",
+                  value: e.target.value
+                },
+              })}>
+                <Toolbar>
+                    <BtnUndo/>
+                    <BtnRedo/>
+                    <BtnBold/>
+                    <BtnItalic/>
+                    <BtnUnderline/>
+                    <BtnStrikeThrough/>
+                    <BtnNumberedList/>
+                    <BtnBulletList/>
+                </Toolbar>
+            </Editor>
+
+        }
       </div>
       <div>
         <Label>

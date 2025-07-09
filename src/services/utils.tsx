@@ -33,10 +33,13 @@ export const errorControl = (error: AxiosError) => {
 }
 
 export const slugify = (text: string) => {
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')           
-    .replace(/[^\w\-]+/g, '')      
-    .replace(/\-\-+/g, '-')         
-    .replace(/^-+/, '')           
-    .replace(/-+$/, ''); 
-}
+  return text
+    .normalize("NFD") // decompõe caracteres acentuados
+    .replace(/[\u0300-\u036f]/g, '') // remove marcas diacríticas
+    .toLowerCase()
+    .replace(/\s+/g, '-')            // substitui espaços por hífen
+    .replace(/[^\w\-]+/g, '')        // remove caracteres não alfanuméricos
+    .replace(/\-\-+/g, '-')          // colapsa múltiplos hífens
+    .replace(/^-+/, '')              // remove hífens do início
+    .replace(/-+$/, '');             // remove hífens do fim
+};

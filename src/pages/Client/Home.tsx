@@ -227,7 +227,7 @@ export default function Home() {
       <PageMeta title={"Convitin"} description="Crie seu convite" />
       <section className="h-full md:h-auto flex items-center justify-center">
           <div ref={parent} className="w-full h-full bg-white 
-          md:h-auto md:max-w-md md:rounded-xl md:shadow-md
+          md:h-auto md:max-w-2xl md:rounded-xl md:shadow-md
           p-4">
           {step === 0 && (
             <>
@@ -242,6 +242,7 @@ export default function Home() {
                 description={state.description}
                 eventDate={state.event_date}
                 mainImage={mainImage}
+                gettingStarted
                 onChange={setValue}
                 onImageDrop={handleMainDrop}
                 onRemoveImage={() => setMainImage(null)}
@@ -294,6 +295,7 @@ export default function Home() {
               icon={<FaAngleLeft className=" text-blue-dark" />}
               onSubmit={nextStep}
               onBack={handleBackStep}
+              gettingStarted
               hideDelete
               hideSlug
             />

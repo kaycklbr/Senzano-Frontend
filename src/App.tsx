@@ -25,7 +25,7 @@ export default function App() {
           <Route element={<AuthLayout />}>
             <Route path="/reset" element={<Reset />} />
             <Route path="/login" element={<SignInForm />} />
-            <Route path="/signup" element={<SignUpForm />} />
+            {/* <Route path="/signup" element={<SignUpForm />} /> */}
           </Route>
 
           <Route element={<ClientLayout />}>

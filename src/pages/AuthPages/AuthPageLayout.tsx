@@ -1,15 +1,8 @@
-import React, { useContext } from "react";
-import GridShape from "../../components/common/GridShape";
-import { Link, Navigate, Outlet } from "react-router";
-import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
-import logo from "../../../logo.png"
+import { useContext } from "react";
+import { Navigate, Outlet } from "react-router";
 import { AuthContext } from "../../context/AuthProvider";
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout() {
 
   const { authenticated } = useContext(AuthContext);
 
@@ -17,7 +10,6 @@ export default function AuthLayout({
   
   return (
     <div className="relative p-6 bg-white h-screen z-1 dark:bg-gray-900 sm:p-0">
-        {/* {children} */}
         <Outlet/>
     </div>
   );

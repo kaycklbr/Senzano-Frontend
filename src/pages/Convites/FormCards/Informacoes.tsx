@@ -1,3 +1,4 @@
+import { BtnBold, BtnBulletList, BtnItalic, BtnNumberedList, EditorProvider, BtnRedo, BtnStrikeThrough, BtnUnderline, BtnUndo, Editor, Toolbar } from "react-simple-wysiwyg";
 import FormCard from "../../../components/common/FormCard";
 import Label from "../../../components/form/Label";
 import Input from "../../../components/form/input/InputField";
@@ -8,6 +9,7 @@ interface Props {
   title: string;
   description: string;
   eventDate: string;
+  gettingStarted?: boolean;
   mainImage?: { file?: File; url: string; id?: string };
   setTitle: (e: any) => void;
   setEventDate: (e: any) => void;
@@ -25,6 +27,7 @@ export default function Informacoes({
   title,
   description,
   eventDate,
+  gettingStarted,
   mainImage,
   setTitle,
   setEventDate,
@@ -54,15 +57,15 @@ export default function Informacoes({
         title={formCardTitle || "Informações do Convite"} 
         onSubmit={onSubmit}
         buttonLabel={formCardButtonLabel}>
-      <div>
+      <div className="lists-decorators">
         <Label>Nome do evento</Label>
         <Input
-          type="text"
-          name="title"
-          required
-          value={title}
-          onChange={(e) => setTitle ? setTitle(e) : onChange(e)}
-          placeholder="João e Maria, M & H, ..."
+        type="text"
+        name="title"
+        required
+        value={title}
+        onChange={(e) => setTitle ? setTitle(e) : onChange(e)}
+        placeholder="João e Maria, M & H, ..."
         />
       </div>
 
@@ -131,15 +134,37 @@ export default function Informacoes({
         />
       </div>
 
-      <div>
+      <div className="list-decorators">
         <Label htmlFor="description">Frase inicial</Label>
-        <Input
-          type="text"
-          name="description"
-          value={description}
-          onChange={onChange}
-          placeholder="Venha celebrar conosco nessa festa..."
-        />
+        {gettingStarted ? 
+            <Input
+            type="text"
+            name="description"
+            value={description}
+            onChange={onChange}
+            placeholder="Venha celebrar conosco nessa festa..."
+            />
+            :
+            <EditorProvider>
+                <Editor style={{color: 'black'}} value={description} onChange={(e) => onChange({
+                    currentTarget: {
+                        name: 'description',
+                        value: e.target.value
+                    }
+                })}>
+                    <Toolbar>
+                        <BtnUndo/>
+                        <BtnRedo/>
+                        <BtnBold/>
+                        <BtnItalic/>
+                        <BtnUnderline/>
+                        <BtnStrikeThrough/>
+                        <BtnNumberedList/>
+                        <BtnBulletList/>
+                    </Toolbar>
+                </Editor>
+            </EditorProvider>
+        }
       </div>
     </FormCard>
   );

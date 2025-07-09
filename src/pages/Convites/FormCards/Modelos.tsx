@@ -27,7 +27,7 @@ export default function Modelos({
         <div className="flex gap-3 overflow-x-auto relative pr-[50px]">
           {modelsLoading && <Spinner />}
           {templates.map((t, index) => {
-            const isSelected = selectedTemplateId === t.id;
+            const isSelected = selectedTemplateId == t.id;
             return (
               <div
                 key={"template_" + index}
