@@ -348,7 +348,7 @@ export default function ConviteDetails({ isEdit }) {
             </div>
 
             <div>
-              <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small></Label>
+              <Label>Foto principal <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small> </Label>
 
               <div
                 {...getMainRootProps()}

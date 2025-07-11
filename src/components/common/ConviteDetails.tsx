@@ -91,6 +91,7 @@ export default function ConviteDetails({ isEdit }) {
     title: '',
     event_date: '',
     description: '',
+    resume: '',
     enable_ceremony: true,
     enable_gift: false,
     hide_acompanhante: '',
@@ -303,6 +304,7 @@ export default function ConviteDetails({ isEdit }) {
         p-4">
           <Informacoes
             title={state.title}
+            resume={state.resume}
             description={state.description}
             eventDate={state.event_date}
             mainImage={mainImage}

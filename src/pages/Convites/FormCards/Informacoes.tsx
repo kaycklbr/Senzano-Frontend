@@ -8,6 +8,7 @@ import { FaX } from "react-icons/fa6";
 interface Props {
   title: string;
   description: string;
+  resume?: string;
   eventDate: string;
   gettingStarted?: boolean;
   mainImage?: { file?: File; url: string; id?: string };
@@ -26,6 +27,7 @@ interface Props {
 export default function Informacoes({
   title,
   description,
+  resume,
   eventDate,
   gettingStarted,
   mainImage,
@@ -73,6 +75,7 @@ export default function Informacoes({
         <Label>
           Foto principal{" "}
           <small>(Adicione uma foto quadrada de preferência para melhor enquadramento)</small>
+          &nbsp;<span className="text-pink">(opcional)</span>
         </Label>
 
         <div
@@ -134,38 +137,39 @@ export default function Informacoes({
         />
       </div>
 
-      <div className="list-decorators">
+      <div className="">
         <Label htmlFor="description">Frase inicial</Label>
-        {gettingStarted ? 
-            <Input
+        <Input
             type="text"
             name="description"
             value={description}
             onChange={onChange}
             placeholder="Venha celebrar conosco nessa festa..."
             />
-            :
-            <EditorProvider>
-                <Editor style={{color: 'black'}} value={description} onChange={(e) => onChange({
-                    currentTarget: {
-                        name: 'description',
-                        value: e.target.value
-                    }
-                })}>
-                    <Toolbar>
-                        <BtnUndo/>
-                        <BtnRedo/>
-                        <BtnBold/>
-                        <BtnItalic/>
-                        <BtnUnderline/>
-                        <BtnStrikeThrough/>
-                        <BtnNumberedList/>
-                        <BtnBulletList/>
-                    </Toolbar>
-                </Editor>
-            </EditorProvider>
-        }
       </div>
+
+      {!gettingStarted && <div className="list-decorators">
+        <Label htmlFor="resume">Introdução <span className="text-pink">(opcional)</span></Label>
+        <EditorProvider>
+            <Editor style={{color: 'black'}} value={resume} onChange={(e) => onChange({
+                currentTarget: {
+                    name: 'resume',
+                    value: e.target.value
+                }
+            })}>
+                <Toolbar>
+                    <BtnUndo/>
+                    <BtnRedo/>
+                    <BtnBold/>
+                    <BtnItalic/>
+                    <BtnUnderline/>
+                    <BtnStrikeThrough/>
+                    <BtnNumberedList/>
+                    <BtnBulletList/>
+                </Toolbar>
+            </Editor>
+        </EditorProvider>
+      </div>}
     </FormCard>
   );
 }

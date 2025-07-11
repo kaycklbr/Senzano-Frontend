@@ -47,7 +47,7 @@ export default function ConviteEdit() {
       <PageBreadcrumb onBack={() => navigate('/admin/convites')} pageTitle={(isEdit ? 'Editar' : 'Criar') + " convite"} />
 
       <div className="">
-        {isEdit && <ul className="flex md:min-w-[200px] gap-2 md:flex-wrap pb-2 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
+        {isEdit && <ul className="overflow-auto flex md:min-w-[200px] gap-2 md:flex-wrap pb-2 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
           <li>
             <Link
               to={('?tab=info')}
