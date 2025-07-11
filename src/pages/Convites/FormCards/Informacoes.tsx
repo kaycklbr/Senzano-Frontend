@@ -139,13 +139,34 @@ export default function Informacoes({
 
       <div className="">
         <Label htmlFor="description">Frase inicial</Label>
-        <Input
+        {gettingStarted ? <Input
             type="text"
             name="description"
             value={description}
             onChange={onChange}
             placeholder="Venha celebrar conosco nessa festa..."
             />
+            :
+            <EditorProvider>
+                <Editor style={{color: 'black'}} value={description} onChange={(e) => onChange({
+                    currentTarget: {
+                        name: 'description',
+                        value: e.target.value
+                    }
+                })}>
+                    <Toolbar>
+                        <BtnUndo/>
+                        <BtnRedo/>
+                        <BtnBold/>
+                        <BtnItalic/>
+                        <BtnUnderline/>
+                        <BtnStrikeThrough/>
+                        <BtnNumberedList/>
+                        <BtnBulletList/>
+                    </Toolbar>
+                </Editor>
+            </EditorProvider>
+            }
       </div>
 
       {!gettingStarted && <div className="list-decorators">

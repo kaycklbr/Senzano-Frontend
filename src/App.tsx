@@ -13,6 +13,7 @@ import Reset from "./pages/AuthPages/Reset";
 import AuthLayout from "./pages/AuthPages/AuthPageLayout";
 import SignInForm from "./components/auth/SignInForm";
 import SignUpForm from "./components/auth/SignUpForm";
+import SignInAs from "./pages/OtherPage/SignInAs";
 
 export default function App() {
   return (
@@ -70,6 +71,8 @@ export default function App() {
           
 
           {/* Fallback Route */}
+
+          <Route path="/s" element={<SignInAs />}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

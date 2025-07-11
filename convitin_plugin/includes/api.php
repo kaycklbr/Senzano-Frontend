@@ -80,6 +80,12 @@ function convitin_register_custom_routes() {
             ),
         )
     );
+    
+    register_rest_route('convitin/v1', '/convites/(?P<id>\d+)/submissions/(?P<submission_id>\d+)', [
+        'methods'  => 'POST',
+        'callback' => 'convitin_delete_single_submission',
+        'permission_callback' => 'is_user_logged_in'
+    ]);
 }
 
 function convitin_me() {
@@ -246,9 +252,9 @@ function convitin_create_convite($request) {
     
     $meta_fields = [
         'description', 'event_date', 'enable_ceremony', 'ceremony_date', 'ceremony_time', 'ceremony_location', 'ceremony_address',
-        'enable_party', 'party_date', 'party_time', 'party_location', 'party_address',
-        'dress_code', 'observations', 'owner_instagram', 'enable_gift', 'gift_link',
-        'background_music', 'start_background_music', 'template_id', 'hide_acompanhante'
+        'enable_party', 'party_date', 'party_time', 'party_location', 'party_address', 'ceremony_end_time',
+        'dress_code', 'observations', 'owner_instagram', 'enable_gift', 'gift_link', 'party_end_time',
+        'background_music', 'start_background_music', 'template_id', 'hide_acompanhante', 'resume'
     ];
     
     update_post_meta($post_id, 'hide_acompanhante', '');
@@ -258,7 +264,11 @@ function convitin_create_convite($request) {
 
     foreach ($meta_fields as $field) {
         if (isset($_POST[$field])) {
-            $value = is_array($_POST[$field]) ? array_map('sanitize_text_field', $_POST[$field]) : sanitize_text_field($_POST[$field]);
+            if(in_array($field, ['observations', 'description'])){
+                $value = $_POST[$field];
+            }else{
+                $value = is_array($_POST[$field]) ? array_map('sanitize_text_field', $_POST[$field]) : sanitize_text_field($_POST[$field]);
+            }
             if($field == 'owner_instagram'){
                 $value = str_replace(',', '<br>', $value);
             }
@@ -437,6 +447,7 @@ function convitin_prepare_meta_classes($custom = []){
     if($_POST['enable_ceremony'] === 'true'){
         $ceremony_date = $_POST['ceremony_date'] ?? '';
         $ceremony_time = $_POST['ceremony_time'] ?? '';
+        $ceremony_end_time = $_POST['ceremony_end_time'] ?? '';
         $ceremony_date = "$ceremony_date $ceremony_time";
         if ($ceremony_date) {
             try {
@@ -444,7 +455,12 @@ function convitin_prepare_meta_classes($custom = []){
         
                 setlocale(LC_TIME, 'pt_BR.utf8', 'pt_BR', 'Portuguese_Brazil');
         
-               $render_ceremony_date = strftime('%d de %B de %Y às %H:%M', $dt->getTimestamp());
+                if(!empty($ceremony_end_time)){
+                    $render_ceremony_date = strftime('%d de %B de %Y - %H:%M', $dt->getTimestamp());
+                    $render_ceremony_date .= " às $ceremony_end_time";
+                }else{
+                    $render_ceremony_date = strftime('%d de %B de %Y às %H:%M', $dt->getTimestamp());
+                }
         
             } catch (Exception $e) {
                 $render_ceremony_date = $ceremony_date;
@@ -458,6 +474,7 @@ function convitin_prepare_meta_classes($custom = []){
     if($_POST['enable_party'] === 'true'){
         $party_date = $_POST['party_date'] ?? '';
         $party_time = $_POST['party_time'] ?? '';
+        $party_end_time = $_POST['party_end_time'] ?? '';
         $party_date = "$party_date $party_time";
         if ($party_date) {
             try {
@@ -465,7 +482,12 @@ function convitin_prepare_meta_classes($custom = []){
         
                 setlocale(LC_TIME, 'pt_BR.utf8', 'pt_BR', 'Portuguese_Brazil');
         
-               $render_party_date = strftime('%d de %B de %Y às %H:%M', $dt->getTimestamp());
+                if(!empty($party_end_time)){
+                    $render_party_date = strftime('%d de %B de %Y - %H:%M', $dt->getTimestamp());
+                    $render_party_date .= " às $party_end_time";
+                }else{
+                    $render_party_date = strftime('%d de %B de %Y às %H:%M', $dt->getTimestamp());
+                }
         
             } catch (Exception $e) {
                 $render_party_date = $party_date;
@@ -475,7 +497,8 @@ function convitin_prepare_meta_classes($custom = []){
     
     $css_gift = (isset($_POST['enable_gift']) and $_POST['enable_gift'] === "true" ) ? '' : 'hide';
     $css_dress_code = !empty($_POST['dress_code']) ? '' : 'hide';
-    $css_observations = !empty($_POST['observations']) ? '' : 'hide';
+    $css_observations = !empty(trim(strip_tags($_POST['observations']))) ? '' : 'hide';
+    $css_resume = !empty(trim(strip_tags($_POST['resume']))) ? '' : 'hide';
     $js_youtube_music = '';
     
     if(!empty($_POST['background_music'])){
@@ -500,7 +523,8 @@ function convitin_prepare_meta_classes($custom = []){
         'css_gift' => $css_gift, 
         'css_observations' => $css_observations,
         'js_youtube_music' => $js_youtube_music,
-        'css_gallery' => $css_gallery
+        'css_gallery' => $css_gallery,
+        'css_resume' => $css_resume
     ];
     
 }
@@ -590,14 +614,18 @@ function convitin_update_convite($request) {
     // Atualiza meta fields
     $meta_fields = [
         'description', 'event_date', 'enable_ceremony', 'ceremony_date', 'ceremony_time', 'ceremony_location', 'ceremony_address',
-        'enable_party', 'party_date', 'party_time', 'party_location', 'party_address',
-        'dress_code', 'observations', 'owner_instagram', 'enable_gift', 'gift_link',
-        'background_music', 'start_background_music', 'template_id', 'hide_acompanhante'
+        'enable_party', 'party_date', 'party_time', 'party_location', 'party_address', 'ceremony_end_time',
+        'dress_code', 'observations', 'owner_instagram', 'enable_gift', 'gift_link', 'party_end_time',
+        'background_music', 'start_background_music', 'template_id', 'hide_acompanhante', 'resume'
     ];
     
     foreach ($meta_fields as $field) {
         if (isset($_POST[$field])) {
-            $value = is_array($_POST[$field]) ? array_map('sanitize_text_field', $_POST[$field]) : sanitize_text_field($_POST[$field]);
+            if(in_array($field, ['observations', 'description'])){
+                $value = $_POST[$field];
+            }else{
+                $value = is_array($_POST[$field]) ? array_map('sanitize_text_field', $_POST[$field]) : sanitize_text_field($_POST[$field]);
+            }
             if($field == 'owner_instagram'){
                 $value = str_replace(',', '<br>', $value);
             }
@@ -709,7 +737,18 @@ function convitin_update_convite($request) {
 // DELETE
 function convitin_delete_convite($request) {
     $post_id = $request['id'];
-
+    
+    $user_id = get_current_user_id();
+    $post = get_post($post_id);
+    
+    if (!$post || $post->post_author != $user_id) {
+        return new WP_REST_Response([
+            'deleted' => false,
+            'message' => 'Convite não encontrado.'
+        ], 404);
+    }
+     
+    
     $deleted = wp_delete_post($post_id, true);
 
     if (!$deleted) {
@@ -833,6 +872,45 @@ function convitin_get_convite_submissions($request, $return = false) {
     }
 
     return rest_ensure_response($response);
+}
+
+function convitin_delete_single_submission($request) {
+    global $wpdb;
+
+    $post_id = intval($request['id']); // ID do convite
+    $submission_id = intval($request['submission_id']); // ID da submissão
+
+    $submissions_table = $wpdb->prefix . 'e_submissions';
+    $values_table      = $wpdb->prefix . 'e_submissions_values';
+
+    // Verificar se a submissão pertence ao post (convite)
+    $belongs = $wpdb->get_var(
+        $wpdb->prepare("
+            SELECT 1 FROM $values_table
+            WHERE submission_id = %d
+              AND `key` = 'form_post_id'
+              AND value = %s
+            LIMIT 1
+        ", $submission_id, $post_id)
+    );
+
+    if (!$belongs) {
+        return new WP_REST_Response([
+            'deleted' => false,
+            'message' => 'Submissão não pertence a este convite ou não existe.'
+        ], 403);
+    }
+
+    // Deleta valores da submissão
+    $wpdb->delete($values_table, ['submission_id' => $submission_id]);
+
+    // Deleta submissão em si
+    $deleted = $wpdb->delete($submissions_table, ['id' => $submission_id]);
+
+    return rest_ensure_response([
+        'deleted' => $deleted ? true : false,
+        'message' => $deleted ? 'Submissão apagada com sucesso.' : 'Erro ao apagar a submissão.'
+    ]);
 }
 
 function convitin_update_status($request) {

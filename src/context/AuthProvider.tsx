@@ -10,15 +10,17 @@ type IAuthContext = {
   authenticated: boolean;
   setAuthenticated: (newState: boolean) => void;
   user: any;
+  setToken: (token: string) => void;
   setUser: (newState: any) => void;
   login: (email: string, password: string, remember?: boolean) => void;
   logout: () => void;
 }
 
 const initialValue = {
-  authenticated: !!JSON.parse(localStorage.getItem('access_token')),
+  authenticated: !!JSON.parse(localStorage.getItem('access_token') || '""'),
   setAuthenticated: () => {},
   user: null,
+  setToken: () => {},
   setUser: () => {},
   login: () => {},
   logout: () => {}
@@ -70,7 +72,7 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   return (
-    <AuthContext.Provider value={{ authenticated, setAuthenticated, user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ authenticated, setToken, setAuthenticated, user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
