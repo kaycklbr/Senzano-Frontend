@@ -138,7 +138,7 @@ export default function Informacoes({
       </div>
 
       <div className="">
-        <Label htmlFor="description">Frase inicial</Label>
+        <Label htmlFor="description">Frase inicial <span className="text-pink">(opcional)</span></Label>
         {gettingStarted ? <Input
             type="text"
             name="description"

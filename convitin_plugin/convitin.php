@@ -81,11 +81,16 @@ function convitin_handle_custom_action() {
     }
     
     $token = convitin_generate_jwt_for_user($user_id);
-    wp_die($token);
-
-    $destino = 'https://app.convitin.com.br'; 
-    header('Location: ' . $destino );
-    exit;
+    
+    if ( is_wp_error( $token ) ) {
+        echo 'Erro: ' . $token->get_error_message();
+    } else {
+        $destino = 'https://app.convitin.com.br/s?token='.$token; 
+        header('Location: ' . $destino );
+        exit;
+    }
+    
+    
 }
 
 function convitin_generate_jwt_for_user( $user_id ) {
