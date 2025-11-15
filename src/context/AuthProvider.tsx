@@ -44,8 +44,8 @@ export const AuthProvider = ({ children }: Props) => {
     const loadUser = async () => {
       if(token){
         try {
-          const { data } = await api.get('/convitin/v1/me');
-          setUser(data);
+          const { data } = await api.get('/auth/me');
+          setUser(data.data);
         } catch (err) {
           console.error('Failed to load user', err);
         }
@@ -56,14 +56,15 @@ export const AuthProvider = ({ children }: Props) => {
   }, [token]);
 
   const login = async (email: string, password: string, remember = false) => {
-    const { data } = await api.post('jwt-auth/v1/token', {
-      username: email,
-      password
+    const credentials = btoa(`${email}:${password}`);
+    const { data } = await api.get('/auth/jwt/token', {
+      headers: {
+        'Authorization': `Basic ${credentials}`
+      }
     });
 
-    setToken(data.data.token);
+    setToken(data.data.jwt);
     return data;
-    // setUser(data.user);
   };
 
   const logout = () => {

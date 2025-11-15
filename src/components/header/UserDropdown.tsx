@@ -24,15 +24,6 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center gap-2 text-gray-700 dropdown-toggle dark:text-gray-400"
       >
-
-        <Link 
-          to={'https://api.whatsapp.com/send/?phone=5521973016803&text=Ol%C3%A1%2C+vi+o+site+da+Convitin+e+tenho+uma+d%C3%BAvida&type=phone_number&app_absent=0'} 
-          target="_blank"
-          className="hidden md:flex rounded-2xl bg-[#2CD46B] p-2 items-center gap-2 text-white text-sm">
-          <FaWhatsapp className="text-base"/>
-          <span className="hidden md:block">Suporte</span>
-        </Link>
-
         {user?.avatar_urls && <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
            <img src={Object.values(user.avatar_urls)[0]} alt="User" />
         </span>}

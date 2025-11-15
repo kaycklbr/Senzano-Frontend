@@ -52,6 +52,14 @@ import { ReactComponent as ChatIcon } from "./chat.svg?react";
 import { ReactComponent as MoreDotIcon } from "./moredot.svg?react";
 import { ReactComponent as AlertHexaIcon } from "./alert-hexa.svg?react";
 import { ReactComponent as ErrorHexaIcon } from "./info-hexa.svg?react";
+// import { ReactComponent as Building } from "./building.svg?react";
+import { ReactComponent as House } from "./house.svg?react";
+import { ReactComponent as Keys } from "./keys.svg?react";
+import { ReactComponent as Building } from "./building.svg?react";
+import { ReactComponent as Sound } from "./sound.svg?react";
+import { ReactComponent as Gears } from "./gears.svg?react";
+import { ReactComponent as MedalRibbon } from "./medalribbon.svg?react";
+import { ReactComponent as SSenzano } from "./s-senzano.svg?react";
 
 
 export {
@@ -109,5 +117,11 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
-  
+  House,
+  Keys,
+  Sound,
+  Gears,
+  Building,
+  MedalRibbon,
+  SSenzano,
 };

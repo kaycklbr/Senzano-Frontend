@@ -9,7 +9,7 @@ export default function SignIn() {
 
   return (
     <>
-      <PageMeta title={"Convitin"} description="Crie seu convite" />
+      <PageMeta title={"Senzano Empreendimentos"} />
       <AuthLayout>
         <SignInForm />
       </AuthLayout>

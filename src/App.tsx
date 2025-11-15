@@ -4,9 +4,20 @@ import UserProfiles from "./pages/UserProfiles";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import ClientHome from "./pages/Client/Home";
+import Home from "./pages/Home/Home";
+import Empreendimentos from "./pages/Empreendimentos/Empreendimentos";
+import AdminEmpreendimentos from "./pages/Empreendimentos";
+import EmpreendimentoForm from "./pages/EmpreendimentoForm";
+import AdminLancamentos from "./pages/Lancamentos";
+import LancamentoForm from "./pages/LancamentoForm";
+import AdminPaginas from "./pages/Paginas";
+import PaginaForm from "./pages/PaginaForm";
+import AdminImoveis from "./pages/Imoveis";
+import Anuncie from "./pages/Anuncie/Anuncie";
 // import { useContext } from "react";
 // import { AuthContext } from "./context/AuthProvider";
 import ClientLayout from "./layout/ClientLayout";
+import HomeLayout from "./layout/HomeLayout";
 import Convites from "./pages/Convites/Convites";
 import ConviteEdit from "./pages/Convites/ConviteEdit";
 import Reset from "./pages/AuthPages/Reset";
@@ -14,13 +25,42 @@ import AuthLayout from "./pages/AuthPages/AuthPageLayout";
 import SignInForm from "./components/auth/SignInForm";
 import SignUpForm from "./components/auth/SignUpForm";
 import SignInAs from "./pages/OtherPage/SignInAs";
+import Property from "./pages/Property/Property";
+import Lancamentos from "./pages/Lancamentos/Lancamentos";
+import Sobre from "./pages/Sobre/Sobre";
+import PropertyDetails from "./pages/Property/PropertyDetails";
+import { useJsApiLoader } from '@react-google-maps/api'
+import Contact from "./pages/Contact/Contact";
+import PublicPage from "./pages/PublicPage";
+import PublicPost from "./pages/PublicPost";
 
 export default function App() {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: 'AIzaSyANLIC3VX7fej4KVqqFQH_o-RYAFZxkCE0',
+  })
   return (
     <>
       <Router>
         <ScrollToTop />
         <Routes>
+
+          <Route element={<HomeLayout />}>
+            <Route index path="" element={<Home mapLoaded={isLoaded} />} />
+            <Route index path="/empreendimentos" element={<Empreendimentos />} />
+            <Route index path="/empreendimentos/:slug" element={<PublicPage />} />
+            <Route index path="/lancamentos" element={<Lancamentos />} />
+            <Route index path="/lancamentos/:slug" element={<PublicPage />} />
+            <Route index path="/fale-conosco" element={<Contact />} />
+            <Route index path="/anuncie" element={<Anuncie />} />
+            <Route index path="/quem-somos" element={<Sobre />} />
+            <Route index path="/imovel/:id" element={<PropertyDetails />} />
+            <Route index path="/empreendimentos/:slug" element={<PublicPost />} />
+            <Route index path="/lancamentos/:slug" element={<PublicPost />} />
+            <Route index path="/venda" element={<Property />} />
+            <Route index path="/locacao" element={<Property />} />
+            <Route index path="/:slug" element={<PublicPage />} />
+          </Route>
 
           {/* Auth Layout */}
           <Route element={<AuthLayout />}>
@@ -29,22 +69,26 @@ export default function App() {
             {/* <Route path="/signup" element={<SignUpForm />} /> */}
           </Route>
 
-          <Route element={<ClientLayout />}>
-            <Route index path="" element={<Navigate to="/admin" />} />
-            <Route path="/criar-convite" element={<ClientHome />} />
-          </Route>
-
-          
-
           {/* Dashboard Layout */}
           <Route path="admin" element={<AppLayout />}>
             {/* <Route index path="" element={<Home />} /> */}
-            <Route path="" element={<Navigate to="/admin/convites"/>} />
+            <Route path="" element={<Navigate to="/admin/empreendimentos"/>} />
             <Route path="profile" element={<UserProfiles />} />
+            <Route path="empreendimentos" element={<AdminEmpreendimentos />} />
+            <Route path="empreendimentos/novo" element={<EmpreendimentoForm />} />
+            <Route path="empreendimentos/editar/:id" element={<EmpreendimentoForm />} />
+            <Route path="lancamentos" element={<AdminLancamentos />} />
+            <Route path="lancamentos/novo" element={<LancamentoForm />} />
+            <Route path="lancamentos/editar/:id" element={<LancamentoForm />} />
+            <Route path="paginas" element={<AdminPaginas />} />
+            <Route path="paginas/nova" element={<PaginaForm />} />
+            <Route path="paginas/editar/:id" element={<PaginaForm />} />
+            <Route path="imoveis" element={<AdminImoveis />} />
+            
 
             {/* Others Page */}
-            <Route path="convites" element={<Convites />} />
-            <Route path="convites/:id" element={<ConviteEdit />} />
+            {/* <Route path="convites" element={<Convites />} />
+            <Route path="convites/:id" element={<ConviteEdit />} /> */}
             
             {/* <Route path="calendar" element={<Calendar />} />
             <Route path="blank" element={<Blank />} /> */}
@@ -53,7 +97,6 @@ export default function App() {
             {/* <Route path="form-elements" element={<FormElements />} /> */}
 
             {/* Tables */}
-            {/* <Route path="basic-tables" element={<BasicTables />} /> */}
 
             {/* Ui Elements */}
             {/* <Route path="alerts" element={<Alerts />} />
@@ -68,11 +111,6 @@ export default function App() {
             <Route path="bar-chart" element={<BarChart />} /> */}
           </Route>
 
-          
-
-          {/* Fallback Route */}
-
-          <Route path="/s" element={<SignInAs />}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

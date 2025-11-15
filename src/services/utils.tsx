@@ -32,6 +32,12 @@ export const errorControl = (error: AxiosError) => {
 
 }
 
+export function getYouTubeVideoId(url) {
+  const regex = /(?:v=|\/)([0-9A-Za-z_-]{11})(?:\?|&|$)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
 export const slugify = (text: string) => {
   return text
     .normalize("NFD") // decompõe caracteres acentuados

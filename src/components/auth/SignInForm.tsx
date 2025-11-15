@@ -12,6 +12,10 @@ import { AuthContext } from "../../context/AuthProvider";
 
 export default function SignInForm() {
 
+  const { authenticated } = useContext(AuthContext);
+
+  if(authenticated) return <Navigate to="/admin" replace />
+
   const { login } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -53,9 +57,6 @@ export default function SignInForm() {
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Entrar
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Acesse seus convites
-            </p>
           </div>
           <div>
             <form onSubmit={handleSubmit}>
@@ -64,7 +65,7 @@ export default function SignInForm() {
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input value={email} required type="email" onChange={e => setEmail(e.target.value)} placeholder="info@gmail.com" />
+                  <Input value={email} required type="email" onChange={e => setEmail(e.target.value)} placeholder="Digite seu email" />
                 </div>
                 <div>
                   <Label>
@@ -107,33 +108,11 @@ export default function SignInForm() {
                   <Button type="submit" loading={loading} className="w-full" size="sm">
                     Entrar
                   </Button>
-                  <div className="mt-2 flex justify-center">
-                    <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                      Esqueceu sua senha? {""}
-                      <Link
-                        to="/reset"
-                        className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                      >
-                        Recuperar senha
-                      </Link>
-                    </p>
-                  </div>
                 </div>
 
               </div>
             </form>
 
-            <div className="mt-5 flex justify-center">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Não possui uma conta? {""}
-                <Link
-                  to="/criar-convite"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Crie seu convite
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
       </div>

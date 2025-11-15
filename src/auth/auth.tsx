@@ -25,26 +25,3 @@ export interface ApiError {
   data?: any;
 }
 
-export const register = async (name, email, password) => {
-  const { data } = await api.post('convitin/v1/register', {
-    name,
-    email, 
-    password
-  });
-  return data;
-}
-
-export const login = async (username, password) => {
-  try{
-    const { data } = await api.post('jwt-auth/v1/token', {
-      username, password
-    }, {
-      headers: {
-        'Authorization': 'bearer null'
-      }
-    });
-    return data;
-  }catch(e){
-    return e.response?.data || { success: false, message: e.message }
-  }
-}

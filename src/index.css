@@ -1,25 +1,49 @@
+
+
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
 layer(base);
 
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: 'icomoon';
+  src: url('./fonts/icomoon.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root{
+  --primary: #6B1417;
+  --primary-light: #d41a22;
+  --dark-gray: #1A1A1A;
+}
 
 @theme {
     --color-blue-dark:  #043C7B;
     --color-pink: #F36995;
     --color-blue-light: #22635D;
     --color-white: #ffffff;
+    --color-primary: var(--primary);
+    --color-primary-light: var(--primary-light);
+    --color-dark-gray: var(--dark-gray);
     
-    --color-Offwhite: #F2F2F2;
+    --color-Offwhite: #F6F6F6;
     --color-Vinho:#86B7B1;
 
 
 
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
+  --font-poppins: Poppins, sans-serif;
+  --font-inter: Inter, sans-serif;
+  --font-icomoon: 'icomoon', sans-serif;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -53,18 +77,18 @@ layer(base);
   --color-white: #ffffff;
   --color-black: #101828;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  --color-brand-25:  #fdf5f5;
+  --color-brand-50:  #fdeaea;
+  --color-brand-100: #f8d5d6;
+  --color-brand-200: #f0a9aa;
+  --color-brand-300: #e37779;
+  --color-brand-400: #c9414a;
+  --color-brand-500: #6b1417; 
+  --color-brand-600: #5c1013;
+  --color-brand-700: #4d0d10;
+  --color-brand-800: #3e0a0d;
+  --color-brand-900: #2f080a;
+  --color-brand-950: #1b0304;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -200,7 +224,16 @@ layer(base);
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-poppins z-1 bg-gray-50;
+  }
+  .font-poppins {
+    font-family: var(--font-poppins);
+  }
+  .font-inter {
+    font-family: var(--font-inter);
+  }
+  .font-icomoon {
+    font-family: var(--font-icomoon);
   }
 }
 
@@ -814,3 +847,71 @@ span.flatpickr-weekday,
     margin-left: 15px; 
   }
 }
+
+/* Swiper customizations */
+.featured-swiper .swiper-pagination-bullet {
+  @apply bg-gray-400 opacity-100;
+}
+
+.featured-swiper .swiper-pagination-bullet-active {
+  @apply bg-[#d41a22];
+}
+
+/* Property Details Swiper */
+.swiper-pagination-custom .swiper-pagination-bullet {
+  @apply bg-white/60 opacity-100 w-3 h-3 mx-1;
+}
+
+.swiper-pagination-custom .swiper-pagination-bullet-active {
+  @apply bg-white;
+}
+
+.swiper-button-prev-custom:hover,
+.swiper-button-next-custom:hover {
+  @apply bg-white shadow-lg;
+}
+
+.line-clamp-5 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Services Swiper */
+.services-swiper .swiper-pagination {
+  @apply mt-6;
+}
+
+.services-swiper .swiper-pagination-bullet {
+  @apply bg-gray-400 opacity-100;
+}
+
+.services-swiper .swiper-pagination-bullet-active {
+  @apply bg-[#d41a22];
+}
+
+.cover-bg {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 80% center;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* acima de sm (tailwind sm = 640px) volta ao centro */
+@media (min-width: 640px) {
+  .cover-bg {
+    background-position: center center;
+  }
+  
+}
+
+@media (width < 1024px) {
+  .featured-swiper .swiper-pagination-bullet{
+    display: none;
+  }
+}
+

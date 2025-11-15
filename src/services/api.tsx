@@ -1,9 +1,10 @@
 import { getAccessToken, logout } from '../auth/auth';
 import axios from 'axios';
+import CONFIG from '../constants/config';
 
 
 const api = axios.create({
-  baseURL: 'https://convitin.com.br/wp-json',
+  baseURL: CONFIG.BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -23,13 +24,9 @@ api.interceptors.response.use(
   response => response,
   error => {
     const status = error.response?.status;
-    const code = error.response?.data?.code;
-
-    const isInvalidToken =
-      status === 403 && code === 'jwt_auth_invalid_token';
     const isUnauthorized = status === 401;
 
-    if ((isInvalidToken || isUnauthorized) && error.response.config.url !== 'jwt-auth/v1/token') {
+    if (isUnauthorized && !error.response.config.url?.includes('/auth/jwt/token')) {
       logout();
     }
 
