@@ -18,8 +18,8 @@ export default function PaginaForm() {
     title: '',
     content: '',
     slug: '',
-    show_in_home: false,
-    show_in_footer: false,
+    showInHome: false,
+    showInFooter: false,
     active: true
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -38,8 +38,8 @@ export default function PaginaForm() {
         title: data.data.title || '',
         content: data.data.content || '',
         slug: data.data.slug || '',
-        show_in_home: data.data.show_in_home ?? false,
-        show_in_footer: data.data.show_in_footer ?? false,
+        showInHome: data.data.showInHome ?? false,
+        showInFooter: data.data.showInFooter ?? false,
         active: data.data.active ?? true
       });
       if (data.data.image) {
@@ -71,7 +71,7 @@ export default function PaginaForm() {
       }
 
       if (isEdit) {
-        await api.put(`/pages/${id}`, formDataToSend, {
+        await api.post(`/pages/${id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         toast('Página atualizada!', { type: 'success' });
@@ -167,22 +167,22 @@ export default function PaginaForm() {
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
-                id="show_in_home"
-                checked={formData.show_in_home}
-                onChange={(e) => setFormData({...formData, show_in_home: e.target.checked})}
+                id="showInHome"
+                checked={formData.showInHome}
+                onChange={(e) => setFormData({...formData, showInHome: e.target.checked})}
                 className="w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 rounded focus:ring-brand-500"
               />
-              <Label htmlFor="show_in_home">Exibir na Home</Label>
+              <Label htmlFor="showInHome">Exibir na Home</Label>
             </div>
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
-                id="show_in_footer"
-                checked={formData.show_in_footer}
-                onChange={(e) => setFormData({...formData, show_in_footer: e.target.checked})}
+                id="showInFooter"
+                checked={formData.showInFooter}
+                onChange={(e) => setFormData({...formData, showInFooter: e.target.checked})}
                 className="w-4 h-4 text-brand-600 bg-gray-100 border-gray-300 rounded focus:ring-brand-500"
               />
-              <Label htmlFor="show_in_footer">Exibir no Rodapé</Label>
+              <Label htmlFor="showInFooter">Exibir no Rodapé</Label>
             </div>
           </div>
 

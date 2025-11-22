@@ -36,6 +36,11 @@ const navItems: NavItem[] = [
   //   subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   // },
   {
+    icon: <GridIcon />,
+    name: "Imóveis",
+    path: "/admin/imoveis",
+  },
+  {
     icon: <FaBuilding  />,
     name: "Empreendimentos",
     path: "/admin/empreendimentos",
@@ -49,11 +54,6 @@ const navItems: NavItem[] = [
     icon: <PageIcon />,
     name: "Páginas",
     path: "/admin/paginas",
-  },
-  {
-    icon: <GridIcon />,
-    name: "Imóveis",
-    path: "/admin/imoveis",
   },
   {
     icon: <UserCircleIcon />,

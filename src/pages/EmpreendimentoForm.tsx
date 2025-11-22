@@ -72,7 +72,7 @@ export default function EmpreendimentoForm() {
       }
 
       if (isEdit) {
-        await api.put(`/posts/${id}`, formDataToSend, {
+        await api.post(`/posts/${id}`, formDataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         toast('Empreendimento atualizado!', { type: 'success' });

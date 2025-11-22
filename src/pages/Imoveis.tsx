@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 export default function Imoveis() {
   const [properties, setProperties] = useState([]);
   const [pagination, setPagination] = useState(null);
+  const [stats, setStats] = useState({ total: 0, imobzi: 0, imoview: 0 });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     crm_origin: '',
@@ -37,6 +38,9 @@ export default function Imoveis() {
         total: data.total,
         per_page: data.per_page
       });
+      if (data.stats) {
+        setStats(data.stats);
+      }
     } catch (err) {
       toast('Erro ao carregar imóveis', { type: 'error' });
     } finally {
@@ -101,6 +105,36 @@ export default function Imoveis() {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Imóveis
           </h3>
+        </div>
+
+        {/* Cards de Estatísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          
+          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Total de Imóveis</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{stats.total}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Imobzi</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{stats.imobzi}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">Imoview</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">{stats.imoview}</p>
+              </div>
+            </div>
+          </div>
+          
         </div>
 
         {/* Filtros */}

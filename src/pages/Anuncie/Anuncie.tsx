@@ -11,12 +11,15 @@ import {
 import { useState } from "react";
 import Button from "../../components/Button";
 import AnuncieForm from "./AnuncieForm";
+import PageMeta from "../../components/common/PageMeta";
 
 export default function Anuncie() {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta title="Anuncie aqui" description="Anuncie com a Senzano" image="/images/fundo.webp" />
+
 
       {/* Hero Section */}
       <section className="relative w-full h-[250px] bg-gradient-to-r from-gray-100 to-gray-200">

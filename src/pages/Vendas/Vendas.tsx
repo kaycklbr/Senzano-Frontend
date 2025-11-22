@@ -1,9 +1,12 @@
 import { Menu, MapPin, ChevronDown, Bed, Bath, Fullscreen } from "lucide-react";
 import Button from "../../components/Button";
+import PageMeta from "../../components/common/PageMeta";
 
 export default function Venda() {
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta title="Venda" description="Encontre imóveis para comprar" image="/images/fundo.webp" />
+      
       {/* Hero Section with Search */}
       <section className="relative w-full h-[532px]">
         <img

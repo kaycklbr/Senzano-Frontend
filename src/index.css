@@ -915,3 +915,10 @@ span.flatpickr-weekday,
   }
 }
 
+.iv-fullscreen{
+  z-index: 99999;
+}
+
+.iv-fullscreen, .iv-fullscreen-container{
+  background: #00000088;
+}

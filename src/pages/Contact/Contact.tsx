@@ -1,8 +1,10 @@
+import PageMeta from "../../components/common/PageMeta";
 import ContactForm from "../../components/ContactForm";
 
 export default function Contact() {
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta title="Contato" description="Entre em contato com a Senzano" image="/images/fundo.webp" />
 
       {/* Hero Section */}
       <section className="relative w-full h-[250px] bg-gradient-to-r from-gray-100 to-gray-200">

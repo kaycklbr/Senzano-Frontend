@@ -6,12 +6,14 @@ import { AuthContext } from "../../context/AuthProvider";
 import api from "../../services/api";
 import { toast } from "react-toastify";
 import { phoneMask } from "../../utils/phoneMask";
+import { Config } from "../../context/ConfigContext";
 
 export default function UserInfoCard() {
   const { user } = useContext(AuthContext);
   const [settingsData, setSettingsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    address: '',
     facebook: '',
     twitter: '',
     linkedin: '',
@@ -23,7 +25,8 @@ export default function UserInfoCard() {
     phone_locacao: '',
     phone_vendas: '',
     email_contato: '',
-    bio: ''
+    whatsapp_lais: '',
+    video_ebs: ''
   });
 
   useEffect(() => {
@@ -32,13 +35,14 @@ export default function UserInfoCard() {
 
   const loadSettings = async () => {
     try {
-      const { data } = await api.get('/settings');
+      const { data } = await api.get('/settings?perPage=50');
       setSettingsData(data.data);
-      const settingsMap = {};
-      data.data.forEach(setting => {
+      const settingsMap: Config  = {};
+      data.data.forEach((setting: any) => {
         settingsMap[setting.key] = setting.value;
       });
       setFormData({
+        address: settingsMap.address || '',
         facebook: settingsMap.facebook || '',
         twitter: settingsMap.twitter || '',
         linkedin: settingsMap.linkedin || '',
@@ -50,7 +54,8 @@ export default function UserInfoCard() {
         phone_locacao: settingsMap.phone_locacao || '',
         phone_vendas: settingsMap.phone_vendas || '',
         email_contato: settingsMap.email_contato || '',
-        bio: settingsMap.bio || ''
+        whatsapp_lais: settingsMap.whatsapp_lais || '',
+        video_ebs: settingsMap.video_ebs || '',
       });
     } catch (err) {
       console.error('Failed to load settings', err);
@@ -66,13 +71,15 @@ export default function UserInfoCard() {
         { key: 'linkedin', value: formData.linkedin, type: 'text' },
         { key: 'instagram', value: formData.instagram, type: 'text' },
         { key: 'youtube', value: formData.youtube, type: 'text' },
+        { key: 'address', value: formData.address, type: 'text' },
+        { key: 'whatsapp_lais', value: formData.whatsapp_lais, type: 'text' },
         { key: 'whatsapp', value: formData.whatsapp, type: 'text' },
         { key: 'tiktok', value: formData.tiktok, type: 'text' },
         { key: 'phone_senzano', value: formData.phone_senzano, type: 'text' },
         { key: 'phone_locacao', value: formData.phone_locacao, type: 'text' },
         { key: 'phone_vendas', value: formData.phone_vendas, type: 'text' },
         { key: 'email_contato', value: formData.email_contato, type: 'text' },
-        { key: 'bio', value: formData.bio, type: 'text' }
+        { key: 'video_ebs', value: formData.video_ebs, type: 'text' },
       ];
 
       const promises = settingsToUpdate.map(setting => {
@@ -197,6 +204,33 @@ export default function UserInfoCard() {
           Informações de Contato
         </h4>
         <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+          <div>
+            <Label>Vídeo EBS</Label>
+            <Input 
+              type="text" 
+              value={formData.video_ebs}
+              onChange={(e) => setFormData({...formData, video_ebs: e.target.value})}
+              placeholder="Link do Vídeo"
+            />
+          </div>
+          <div>
+            <Label>Endereço</Label>
+            <Input 
+              type="text" 
+              value={formData.address}
+              onChange={(e) => setFormData({...formData, address: e.target.value})}
+              placeholder="Endereço"
+            />
+          </div>
+          <div>
+            <Label>WhatsApp Lais.AI</Label>
+            <Input 
+              type="text" 
+              value={formData.whatsapp_lais}
+              onChange={(e) => setFormData({...formData, whatsapp_lais: phoneMask(e.target.value)})}
+              placeholder="(11) 99999-9999"
+            />
+          </div>
           <div>
             <Label>Telefone Senzano</Label>
             <Input 

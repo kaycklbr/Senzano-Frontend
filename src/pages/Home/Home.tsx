@@ -16,6 +16,9 @@ import DestinationButtons from "../../components/DestinationButtons";
 import { serviceItems } from "../../constants/homeComponents";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import CONFIG from "../../constants/config";
+import { useConfig } from "../../context/ConfigContext";
+import { getYouTubeVideoId } from "../../services/utils";
+import PageMeta from "../../components/common/PageMeta";
 
 // import Keys from '../../icons/keys.svg?react';
 // import Gears from '../../icons/gears.svg?react';
@@ -38,38 +41,40 @@ export default function Home({ mapLoaded }) {
     }
   }
 
+  const { config, loading } = useConfig();
+
   useLayoutEffect(() => {
     fetchResume()
   }, [])
 
-  const [ mapSrc, setMapSrc ] = useState('https://maps.googleapis.com/maps/api/staticmap?center=-20.471505663058004, -54.60738691570766&zoom=18&size=800x500&markers=color:red|-20.471505663058004, -54.60738691570766&key=AIzaSyANLIC3VX7fej4KVqqFQH_o-RYAFZxkCE0&maptype=satellite')
+  // const propertyData = [
+  //   {
+  //     id: 1,
+  //     image: "https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072635424-node-1%3A43-1759072634254.png",
+  //     title: "RESIDENCIAL JARDIM EUROPA",
+  //     content: "Empreendimento exclusivo localizado no coração da cidade, oferecendo apartamentos de alto padrão com acabamentos de primeira qualidade. Área de lazer completa com piscina, academia e salão de festas. Localização privilegiada próximo a shopping centers e escolas."
+  //   },
+  //   {
+  //     id: 2,
+  //     image: "https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072635424-node-1%3A43-1759072634254.png",
+  //     title: "CONDOMÍNIO VILLA TOSCANA",
+  //     content: "Casas em condomínio fechado com segurança 24h, área verde preservada e infraestrutura completa. Projeto arquitetônico inspirado no estilo toscano italiano, com jardins paisagísticos e clube privativo. Ideal para famílias que buscam tranquilidade e sofisticação."
+  //   },
+  //   {
+  //     id: 3,
+  //     image: "https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072635424-node-1%3A43-1759072634254.png",
+  //     title: "EDIFÍCIO METROPOLITAN",
+  //     content: "Torre comercial moderna no centro financeiro da cidade, com salas corporativas de diversos tamanhos. Tecnologia de ponta, sistema de ar condicionado central e estacionamento amplo. Perfeito para empresas que valorizam localização estratégica e infraestrutura de qualidade."
+  //   }
+  // ];
 
-  const propertyData = [
-    {
-      id: 1,
-      image: "https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072635424-node-1%3A43-1759072634254.png",
-      title: "RESIDENCIAL JARDIM EUROPA",
-      content: "Empreendimento exclusivo localizado no coração da cidade, oferecendo apartamentos de alto padrão com acabamentos de primeira qualidade. Área de lazer completa com piscina, academia e salão de festas. Localização privilegiada próximo a shopping centers e escolas."
-    },
-    {
-      id: 2,
-      image: "https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072635424-node-1%3A43-1759072634254.png",
-      title: "CONDOMÍNIO VILLA TOSCANA",
-      content: "Casas em condomínio fechado com segurança 24h, área verde preservada e infraestrutura completa. Projeto arquitetônico inspirado no estilo toscano italiano, com jardins paisagísticos e clube privativo. Ideal para famílias que buscam tranquilidade e sofisticação."
-    },
-    {
-      id: 3,
-      image: "https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072635424-node-1%3A43-1759072634254.png",
-      title: "EDIFÍCIO METROPOLITAN",
-      content: "Torre comercial moderna no centro financeiro da cidade, com salas corporativas de diversos tamanhos. Tecnologia de ponta, sistema de ar condicionado central e estacionamento amplo. Perfeito para empresas que valorizam localização estratégica e infraestrutura de qualidade."
-    }
-  ];
+  // const []
 
-  const totalSlides = propertyData.length;
-  const currentProperty = propertyData[activeSlide];
 
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta image="/images/fundo.webp" />
+
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] bg-gray-300 px-4 flex flex-col items-center md:justify-center justify-end">
         <div
@@ -166,12 +171,13 @@ export default function Home({ mapLoaded }) {
           <div className="gap-8 text-center space-y-10">
             <div className="flex flex-col justify-center relative">
               <div className="absolute bg-gray-100 left-[-100%] w-[100%] h-[50%]" />
-              <div className="bg-gray-500 rounded-[15px] aspect-video z-1">
-                <div className="p-8 text-white">
-                  <p className="text-base mb-4">
-                    VIDEO SOBRE GESTÃO PATRIMIONIAL
-                  </p>
-                </div>
+              <div className="bg-gray-500 rounded-[15px] aspect-video z-1 overflow-hidden">
+                {loading ? (
+                  <div className="animate-pulse bg-gray-400 w-full h-full rounded-[15px]"></div>
+                ) : (
+                  config.video_ebs && <iframe id="ytplayer" className="w-full h-full"
+                    src={'https://www.youtube.com/embed/' + getYouTubeVideoId(config.video_ebs) + '?rel=0'}></iframe>
+                )}
               </div>
             </div>
             <div className="mt-4">
@@ -185,7 +191,7 @@ export default function Home({ mapLoaded }) {
 
       {/* Featured Property Section */}
       <section className="mt-5">
-        <div className="mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex lg:flex-row flex-col items-center">
             <div className="relative flex-1 lg:w-[45%] lg:max-w-[600px] w-full lg:ml-10">
               <div className="absolute left-[-30px] top-[-30px] z-10 lg:block hidden">
@@ -205,12 +211,12 @@ export default function Home({ mapLoaded }) {
                 onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
                 className="featured-swiper w-full"
               >
-                {propertyData.map((property) => (
-                  <SwiperSlide key={property.id}>
+                {resume?.lancamentos?.map((lancamento) => (
+                  <SwiperSlide key={lancamento.id}>
                     <div className="bg-gray-300 lg:rounded-[15px]" style={{aspectRatio: 16/11, maxHeight: '400px', width: '100%'}}>
                       <img
-                        src={property.image}
-                        alt={property.title}
+                        src={lancamento.image_url}
+                        alt={lancamento.title}
                         className="w-full h-full object-cover lg:rounded-[15px]"
                       />
                     </div>
@@ -224,20 +230,25 @@ export default function Home({ mapLoaded }) {
                 <span className="font-icomoon">S</span>Ó LANÇAMENTOS
                 </h3>
                 <h3 className="text-2xl font-black text-primary mb-4 transition-all duration-500">
-                  {currentProperty.title}
+                  {resume?.lancamentos[activeSlide].title}
                 </h3>
-                <p className="text-sm text-black text-justify mb-6 line-clamp-3 transition-all duration-500">
-                  {currentProperty.content}
+                <p className="text-sm text-black text-justify mb-6 line-clamp-3 transition-all duration-500" dangerouslySetInnerHTML={{__html: resume?.lancamentos[activeSlide].content}}>
                 </p>
-                <button className="bg-primary text-white rounded-3xl px-6 py-2 flex self-center items-center gap-2">
-                  <FaWhatsapp size={24} />
-                  <span className="font-semibold">
-                    Fale com um consultor
-                  </span>
-                </button>
+                {loading ? (
+                  <div className="animate-pulse bg-gray-300 rounded-3xl h-10 w-48 mx-auto"></div>
+                ) : (
+                  config?.whatsapp_lais && <a href={`https://wa.me/55${config?.whatsapp_lais.replace(/\D+/g, '')}`} target="_blank">
+                    <button className="bg-primary text-white rounded-3xl px-6 py-2 flex self-center items-center gap-2">
+                      <FaWhatsapp size={24} />
+                      <span className="font-semibold">
+                        Fale com um consultor
+                      </span>
+                    </button>
+                  </a>
+                )}
 
                 <div className="flex gap-2 justify-center mt-4 lg:hidden">
-                  {Array.from({ length: totalSlides }).map((_, index) => (
+                  {Array.from({ length: resume?.lancamentos.length }).map((_, index) => (
                     <button
                       key={index}
                       onClick={() => swiperRef.current?.swiper.slideTo(index)}
@@ -279,7 +290,7 @@ export default function Home({ mapLoaded }) {
       {/* About Section 2 */}
       <section className="py-8">
         <div className="flex lg:flex-row flex-col mx-auto">
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full mt-8">
             <div className="hidden lg:block text-black lg:ml-10 px-10">
               <p className="text-lg font-medium mb-4">
                 Mais do que um imóvel:{" "}
@@ -305,7 +316,7 @@ export default function Home({ mapLoaded }) {
               </p>
 
               <div className="flex gap-2 justify-center mt-4 lg:hidden">
-                {Array.from({ length: totalSlides }).map((_, index) => (
+                {Array.from({ length: resume?.destaque.length }).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => swiperRef.current?.swiper.slideTo(index)}
@@ -316,7 +327,7 @@ export default function Home({ mapLoaded }) {
               </div>
             </div>
           </div>
-          <div className="relative flex flex-col flex-1 lg:w-[50%] lg:max-w-[600px]  w-full lg:mr-14">
+          <div className="relative flex flex-col flex-1 lg:w-[50%] lg:max-w-[650px]  w-full lg:mr-14">
             <Swiper
               ref={swiperRef}
               modules={[Pagination]}
@@ -328,29 +339,44 @@ export default function Home({ mapLoaded }) {
                   return '<span class="' + className + '"></span>';
                 },
               }}
-              onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
+              // onSlideChange={(swiper) => setActiveDestaqueSlide(swiper.activeIndex)}
               className="featured-swiper w-full"
             >
-              {resume?.destaque.map((property) => (
-                <SwiperSlide key={property.id}>
-                  <div className="bg-gray-300 lg:rounded-[15px]" style={{aspectRatio: 16/10, maxHeight: '400px', width: '100%'}}>
-                    <img
-                      src={property.cover_photo.split(',')[0]}
-                      alt={property.title}
-                      className="w-full h-full object-cover lg:rounded-[15px]"
-                    />
-                  </div>
-                </SwiperSlide>
-              ))}
+              {!resume ? (
+                Array(3).fill(0).map((_, i) => (
+                  <SwiperSlide key={i}>
+                    <div className="animate-pulse bg-gray-300 lg:rounded-[15px]" style={{aspectRatio: 16/10, maxHeight: '400px', width: '100%'}}>
+                    </div>
+                  </SwiperSlide>
+                ))
+              ) : (
+                resume?.destaque.map((property) => (
+                  <SwiperSlide key={property.id}>
+                    <div className="bg-gray-300 lg:rounded-[15px]" style={{aspectRatio: 16/10, maxHeight: '400px', width: '100%'}}>
+                      <img
+                        src={property.cover_photo.split(',')[0]}
+                        alt={property.title}
+                        className="w-full h-full object-cover lg:rounded-[15px]"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))
+              )}
             </Swiper>
-            <button className="self-end hidden lg:flex mt-2 items-center">
-                <div className="bg-[#25D366] rounded-full -mr-6 z-9 p-3 text-white">
-                <FaWhatsapp size={24} />
-                </div>
-                <span className="bg-white shadow-lg py-2 pl-8 pr-3 rounded-full font-semibold text-primary">
-                  Fale com um consultor
-                </span>
-              </button>
+            {loading ? (
+              <div className="animate-pulse bg-gray-300 rounded-full h-12 w-48 self-end hidden lg:block mt-2"></div>
+            ) : (
+              config?.whatsapp_lais && <a href={`https://wa.me/55${config?.whatsapp_lais.replace(/\D+/g, '')}`} target="_blank">
+                <button className="self-end hidden lg:flex mt-2 items-center">
+                  <div className="bg-[#25D366] rounded-full -mr-6 z-9 p-3 text-white">
+                  <FaWhatsapp size={24} />
+                  </div>
+                  <span className="bg-white shadow-lg py-2 pl-8 pr-3 rounded-full font-semibold text-primary">
+                    Fale com um consultor
+                  </span>
+                </button>
+              </a>
+            )}
           </div>
           <div className="lg:hidden text-white bg-primary px-10 py-8 relative flex flex-col items-center">
             <DestinationButtons isMobile />
@@ -431,6 +457,7 @@ export default function Home({ mapLoaded }) {
       </section>
 
       {/* Property Highlights - Venda */}
+      {!!resume?.venda?.length &&
       <section className="pt-8">
         <div className="mx-auto">
           <h3 className="text-4xl font-light mb-4 px-4">
@@ -459,24 +486,40 @@ export default function Home({ mapLoaded }) {
                   '--swiper-pagination-bullet-inactive-opacity': '0.3'
                 } as React.CSSProperties}
               >
-                {resume?.venda?.map((property) => (
-                  <SwiperSlide key={property.id} className="pb-8">
-                    <PropertyCard
-                      id={property.id}
-                      slug={property.slug}
-                      title={property.title}
-                      address={property.address}
-                      neighborhood={property.neighborhood}
-                      cover_photo={property.cover_photo}
-                    />
-                  </SwiperSlide>
-                ))}
+                {!resume ? (
+                  Array(3).fill(0).map((_, i) => (
+                    <SwiperSlide key={i} className="pb-8">
+                      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="animate-pulse bg-gray-300 h-48 w-full"></div>
+                        <div className="p-4 space-y-2">
+                          <div className="animate-pulse bg-gray-300 h-4 w-3/4 rounded"></div>
+                          <div className="animate-pulse bg-gray-300 h-3 w-1/2 rounded"></div>
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  ))
+                ) : (
+                  resume?.venda?.map((property) => (
+                    <SwiperSlide key={property.id} className="pb-8">
+                      <PropertyCard
+                        id={property.id}
+                        slug={property.slug}
+                        title={property.title}
+                        address={property.address}
+                        neighborhood={property.neighborhood}
+                        cover_photo={property.cover_photo}
+                      />
+                    </SwiperSlide>
+                  ))
+                )}
               </Swiper>
             </div>
           </div>
         </div>
       </section>
+      }
 
+      {!!resume?.locacao?.length &&
       <section className="pt-0">
         <div className="mx-auto">
           <h3 className="text-4xl font-light mb-4 px-4">
@@ -485,7 +528,7 @@ export default function Home({ mapLoaded }) {
 
           <div className="py-8 mb-8 relative flex items-center">
             <div className="bg-primary absolute left-0 w-full h-[60%] z-0"></div>
-            <div className="px-8 z-100 w-full max-w-6xl mx-auto">
+            <div className="px-8 z-100 w-full mx-auto">
               <Swiper
                 modules={[Pagination]}
                 spaceBetween={30}
@@ -505,23 +548,38 @@ export default function Home({ mapLoaded }) {
                   '--swiper-pagination-bullet-inactive-opacity': '0.3'
                 } as React.CSSProperties}
               >
-                {resume?.locacao?.map((property) => (
-                  <SwiperSlide key={property.id} className="pb-8">
-                    <PropertyCard
-                      id={property.id}
-                      slug={property.slug}
-                      title={property.title}
-                      address={property.address}
-                      neighborhood={property.neighborhood}
-                      cover_photo={property.cover_photo}
-                    />
-                  </SwiperSlide>
-                ))}
+                {!resume ? (
+                  Array(3).fill(0).map((_, i) => (
+                    <SwiperSlide key={i} className="pb-8">
+                      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="animate-pulse bg-gray-300 h-48 w-full"></div>
+                        <div className="p-4 space-y-2">
+                          <div className="animate-pulse bg-gray-300 h-4 w-3/4 rounded"></div>
+                          <div className="animate-pulse bg-gray-300 h-3 w-1/2 rounded"></div>
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  ))
+                ) : (
+                  resume?.locacao?.map((property) => (
+                    <SwiperSlide key={property.id} className="pb-8">
+                      <PropertyCard
+                        id={property.id}
+                        slug={property.slug}
+                        title={property.title}
+                        address={property.address}
+                        neighborhood={property.neighborhood}
+                        cover_photo={property.cover_photo}
+                      />
+                    </SwiperSlide>
+                  ))
+                )}
               </Swiper>
             </div>
           </div>
         </div>
       </section>
+      }
 
       {/* Advertise Section */}
       <section className="pb-16 px-4 border-b-2 border-gray-100">
@@ -565,29 +623,51 @@ export default function Home({ mapLoaded }) {
 
       {/* LGPD Section */}
       <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-2xl font-medium text-primary mb-4">
-                Lei Geral de Proteção de Dados (LGPD)
-              </h3>
-              <p className="text-base text-black mb-6">
-                Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed
-                diam nonummy nibh euismod tincidunt ut laoreet dolore magna
-                aliquam erat volutpat.
-              </p>
-              <Button>
-                Saiba mais
-              </Button>
-            </div>
-            <div>
-              <img
-                src="https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1759072634849-node-1%3A88-1759072634737.png"
-                alt="LGPD"
-                className="w-full h-[362px] rounded-[46px]"
-              />
-            </div>
-          </div>
+        <div className="max-w-6xl mx-auto space-y-4">
+          
+          {!resume ? (
+            Array(2).fill(0).map((_, i) => (
+              <div key={i} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className={i%2 != 0 ? 'order-1' : ''}>
+                  <div className="animate-pulse bg-gray-300 h-8 w-3/4 rounded mb-4"></div>
+                  <div className="space-y-2 mb-6">
+                    <div className="animate-pulse bg-gray-300 h-4 rounded"></div>
+                    <div className="animate-pulse bg-gray-300 h-4 w-5/6 rounded"></div>
+                    <div className="animate-pulse bg-gray-300 h-4 w-4/5 rounded"></div>
+                  </div>
+                  <div className="animate-pulse bg-gray-300 h-10 w-32 rounded"></div>
+                </div>
+                <div>
+                  <div className="animate-pulse bg-gray-300 w-full h-[362px] rounded-[46px]"></div>
+                </div>
+              </div>
+            ))
+          ) : (
+            resume?.pages?.map((p, i) => 
+              <div key={p.id} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className={i%2 != 0 ? 'order-2 md:order-1' : 'order-2 md:-order-1'}>
+                  <h3 className="text-2xl font-medium text-primary mb-4">
+                    {p.title}
+                  </h3>
+                  <p className="text-base text-black mb-6 line-clamp-4" dangerouslySetInnerHTML={{__html: p.content}}>
+                  </p>
+                  <Link to={`${p.slug}`} target={p.slug.startsWith('/') ? '_self' : '_blank'}>
+                    <Button>
+                      Saiba mais
+                    </Button>
+                  </Link>
+                </div>
+                <div>
+                  <img
+                    src={p.image_url}
+                    alt={p.title}
+                    className="w-full aspect-video rounded-[46px] object-cover"
+                  />
+                </div>
+              </div>
+            )
+          )}
+          
         </div>
       </section>
 

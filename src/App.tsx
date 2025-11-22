@@ -48,9 +48,7 @@ export default function App() {
           <Route element={<HomeLayout />}>
             <Route index path="" element={<Home mapLoaded={isLoaded} />} />
             <Route index path="/empreendimentos" element={<Empreendimentos />} />
-            <Route index path="/empreendimentos/:slug" element={<PublicPage />} />
             <Route index path="/lancamentos" element={<Lancamentos />} />
-            <Route index path="/lancamentos/:slug" element={<PublicPage />} />
             <Route index path="/fale-conosco" element={<Contact />} />
             <Route index path="/anuncie" element={<Anuncie />} />
             <Route index path="/quem-somos" element={<Sobre />} />
@@ -63,9 +61,9 @@ export default function App() {
           </Route>
 
           {/* Auth Layout */}
-          <Route element={<AuthLayout />}>
-            <Route path="/reset" element={<Reset />} />
-            <Route path="/login" element={<SignInForm />} />
+          <Route path="auth" element={<AuthLayout />}>
+            {/* <Route path="/reset" element={<Reset />} /> */}
+            <Route path="login" element={<SignInForm />} />
             {/* <Route path="/signup" element={<SignUpForm />} /> */}
           </Route>
 
@@ -111,7 +109,7 @@ export default function App() {
             <Route path="bar-chart" element={<BarChart />} /> */}
           </Route>
 
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
     </>

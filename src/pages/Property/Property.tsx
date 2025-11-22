@@ -7,6 +7,7 @@ import CustomSelect from "../../components/CustomSelect";
 import PriceRangeSelect from "../../components/PriceRangeSelect";
 import { usePropertyFilters } from "../../hooks/usePropertyFilters";
 import CONFIG from "../../constants/config";
+import PageMeta from "../../components/common/PageMeta";
 
 interface Property {
   id: number;
@@ -171,6 +172,8 @@ export default function Property() {
 
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta title={property == 'venda' ? 'Venda' : 'Locação'} description={"Encontre imóveis para " + (property == 'venda' ? 'comprar' : 'alugar')} image="/images/fundo.webp" />
+
       {/* Hero Section with Search */}
       <section className="relative w-full pb-8 md:pb-16 pt-30">
         <img

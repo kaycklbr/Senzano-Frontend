@@ -32,7 +32,7 @@ const LayoutContent: React.FC = () => {
 const AppLayout: React.FC = () => {
 
   const { authenticated } = useContext(AuthContext);
-  if(!authenticated) return <Navigate to="/login" replace />
+  if(!authenticated) return <Navigate to="/auth/login" replace />
 
   return (
     <SidebarProvider>

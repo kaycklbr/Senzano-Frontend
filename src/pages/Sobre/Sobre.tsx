@@ -1,8 +1,11 @@
 import { Menu, MapPin } from "lucide-react";
+import PageMeta from "../../components/common/PageMeta";
 
 export default function Sobre() {
   return (
     <div className="w-full min-h-screen bg-dark-gray">
+      <PageMeta title="Sobre nós" description="Sobre a Senzano" image="/images/fundo.webp" />
+
 
       {/* Hero Section with Background */}
       <section className="relative w-full py-16 px-4 pt-24">

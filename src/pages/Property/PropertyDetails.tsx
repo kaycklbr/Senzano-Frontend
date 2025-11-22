@@ -21,6 +21,8 @@ import PropertyCard from "../../components/PropertyCard";
 import { GoogleMap, Marker } from '@react-google-maps/api'
 import CONFIG from "../../constants/config";
 import { getYouTubeVideoId } from "../../services/utils";
+import { FullScreenViewer, ImageViewer } from 'react-iv-viewer';
+import PageMeta from "../../components/common/PageMeta";
 
 interface PropertyDetail {
   id: number;
@@ -195,6 +197,7 @@ export default function PropertyDetails() {
 
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta title={property.title} description={'Veja o imóvel ' + property.title} image={images[0] || null} />
 
 
       {/* Main Content */}
@@ -210,11 +213,13 @@ export default function PropertyDetails() {
                 >
                   {images.map((image, index) => (
                     <SwiperSlide key={index}>
-                      <img 
-                        src={image} 
-                        alt={`${property.title} - Imagem ${index + 1}`}
-                        className="w-full h-full object-cover blur-xs brightness-50"
+                      <FullScreenViewer 
+                      img={image} 
+                      // alt={`${property.title} - Imagem ${index + 1}`}
+                      className="w-full h-full object-cover blur-xs brightness-50"
                       />
+                      {/* <img 
+                      /> */}
                     </SwiperSlide>
                   ))}
                 </Swiper>
@@ -268,11 +273,19 @@ export default function PropertyDetails() {
                 >
                   {(showMedia == 'fotos' ? images : videos).map((media, index) => (
                     <SwiperSlide key={index}>
-                      {showMedia == 'fotos' ? <img 
-                        src={media} 
-                        alt={`${property.title} - Media ${index + 1}`}
-                        className="w-full h-full object-cover"
-                       /> :
+                      {showMedia == 'fotos' ? 
+                      <FullScreenViewer 
+                      img={media} 
+                      zoomStep={50}
+                      snapView={false}
+                      style={{background:'transparent'}}
+                      defaultZoom={100}
+
+                      hasZoomButtons={false}
+                      // alt={`${property.title} - Media ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      />
+                       :
                        <iframe className="w-full h-full" src={"https://www.youtube.com/embed/"+getYouTubeVideoId(media)} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                       }
                     </SwiperSlide>

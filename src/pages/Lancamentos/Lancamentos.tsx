@@ -8,10 +8,36 @@ import {
   Users,
 } from "lucide-react";
 import Button from "../../components/Button";
+import axios from "axios";
+import CONFIG from "../../constants/config";
+import { useEffect, useState } from "react";
+import { Link } from "react-router";
+import PageMeta from "../../components/common/PageMeta";
 
 export default function Lancamentos() {
+
+  const [ posts, setPosts ] = useState([]);
+  const [ loading, setLoading ] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try{
+        const { data } = await axios.get(CONFIG.BASE_URL+'/public/posts?type=lancamento');
+        setPosts(data?.data);
+      }catch(e){
+
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchData()
+  }, []);
+
   return (
     <div className="w-full min-h-screen bg-white">
+      <PageMeta title="Lançamentos" description="Encontre lançamentos" image="/images/fundo.webp" />
+
 
       {/* Hero Section */}
       <section className="relative w-full h-[250px] bg-gradient-to-r from-gray-100 to-gray-200">
@@ -26,61 +52,31 @@ export default function Lancamentos() {
           </h1>
         </div>
       </section>
-      {/* Terra dos Pequis */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="bg-gray-300 rounded-[15px] h-[344px] w-full"></div>
-
-            <div>
-              <h3 className="font-poppins text-[28px] font-black text-primary leading-[31px] mb-4">
-                TERRA DOS PEQUIS
-              </h3>
-              <p className="font-poppins text-base text-black text-justify leading-7 mb-6">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
-              <Button>
-                Saiba mais
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Maria Neves */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="order-2 lg:order-1">
-              <h3 className="font-poppins text-[28px] font-black text-primary leading-[31px] mb-4 text-right">
-                MARIA NEVES
-              </h3>
-              <p className="font-poppins text-base text-black text-justify leading-7 mb-6">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
-              <div className="flex justify-end">
-                <Button>
-                  Saiba mais
-                </Button>
+      {!!posts?.length && posts.map((p, i) => 
+        <section className="py-16 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="bg-gray-300 rounded-[15px] h-[344px] w-full overflow-hidden">
+                <img src={p.imageUrl} className="h-full w-full object-cover" />
+              </div>
+              <div className={i%2 != 0 ? 'order-2' : ''}>
+                <h3 className="font-poppins uppercase text-[28px] font-black text-[#6b1417] leading-[31px] mb-4">
+                  {p.title}
+                </h3>
+                <p className="font-poppins text-base line-clamp-4 text-black text-justify leading-7 mb-6">
+                  <div dangerouslySetInnerHTML={{__html:p.content}}/>
+                </p>
+                <Link to={p.slug}  target={p.slug.startsWith('/') ? '_self' : '_blank'}>
+                  <Button>
+                    Saiba mais
+                  </Button>
+                </Link>
               </div>
             </div>
-
-            <div className="bg-gray-300 rounded-[15px] h-[344px] w-full order-1 lg:order-2"></div>
           </div>
-        </div>
-      </section>
+        </section>
+
+      )}
     </div>
   );
 }
