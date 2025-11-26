@@ -60,9 +60,15 @@ elseif (preg_match('/\/(.+)/', $path, $matches) && $matches[1] !== '') {
         $response = @file_get_contents("$apiUrl/public/page/$slug");
         if ($response) {
             $data = json_decode($response, true);
-            if ($data && isset($data['title'])) {
-                $title = $data['title'] . ' - Senzano Empreendimentos';
-                $description = strip_tags($data['content'] ?? $data['title']);
+            if ($data && isset($data['data']['title'])) {
+                $title = $data['data']['title'] . ' - Senzano Empreendimentos';
+                $rawDescription = strip_tags($data['data']['content'] ?? $data['data']['title']);
+                $maxLength = 155;
+                if (mb_strlen($rawDescription) > $maxLength) {
+                    $description = mb_substr($rawDescription, 0, $maxLength - 3) . '...';
+                } else {
+                    $description = $rawDescription;
+                }
             }
         }
     }
