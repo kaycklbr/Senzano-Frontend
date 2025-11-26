@@ -371,54 +371,56 @@ export default function Property() {
               {properties.map((prop) => {
                 const price = parseFloat(prop.sale_value);
                 return (
-                  <div key={prop.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div className="relative overflow-hidden">
-                      <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
-                        <span className="absolute top-3 left-3 rounded-full bg-primary-light text-xs px-3 py-1 text-white font-semibold">
-                          {cardLabel}
-                        </span>
-                        <img 
-                          src={prop.cover_photo.split(',')[0]} 
-                          alt={prop.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold mb-2">{prop.title}</h3>
-                      <div className="text-xs mb-2 flex items-center gap-1 text-gray-600">
-                        <MapPin size={14}/>
-                        <span>{prop.neighborhood}, {prop.city}</span>
+                  <Link to={"/imovel/"+prop.slug}>
+                    <div key={prop.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <div className="relative overflow-hidden">
+                        <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
+                          <span className="absolute top-3 left-3 rounded-full bg-primary-light text-xs px-3 py-1 text-white font-semibold">
+                            {cardLabel}
+                          </span>
+                          <img 
+                            src={prop.cover_photo.split(',')[0]} 
+                            alt={prop.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       </div>
                       
-                      <div className="flex justify-between text-xs text-gray-600 mt-5">
-                        <div className="flex items-center gap-1">
-                          <Bed size={14}/>
-                          <span>{prop.bedroom} quartos</span>
+                      <div className="p-6">
+                        <h3 className="text-xl font-semibold mb-2">{prop.title}</h3>
+                        <div className="text-xs mb-2 flex items-center gap-1 text-gray-600">
+                          <MapPin size={14}/>
+                          <span>{prop.neighborhood}, {prop.city}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Bath size={14}/>
-                          <span>{prop.bathroom} banheiros</span>
+                        
+                        <div className="flex justify-between text-xs text-gray-600 mt-5">
+                          <div className="flex items-center gap-1">
+                            <Bed size={14}/>
+                            <span>{prop.bedroom} quartos</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Bath size={14}/>
+                            <span>{prop.bathroom} banheiros</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Fullscreen size={14}/>
+                            <span>{parseFloat(prop.area_total)}m²</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Fullscreen size={14}/>
-                          <span>{parseFloat(prop.area_total)}m²</span>
-                        </div>
-                      </div>
 
-                      <div className="flex justify-between items-center mt-5">
-                        <p className="text-2xl font-bold text-primary-light">
-                          R$ {price.toLocaleString('pt-BR')}{isVenda ? '' : '/mês'}
-                        </p>
-                        <Link to={"/imovel/"+prop.slug}>
-                          <Button size="md" bgColor="bg-primary-light hover:bg-primary" className="text-sm">
-                            Ver detalhes
-                          </Button>
-                        </Link>
+                        <div className="flex justify-between items-center mt-5">
+                          <p className="text-2xl font-bold text-primary-light">
+                            R$ {price.toLocaleString('pt-BR')}{isVenda ? '' : '/mês'}
+                          </p>
+                          <Link to={"/imovel/"+prop.slug}>
+                            <Button size="md" bgColor="bg-primary-light hover:bg-primary" className="text-sm">
+                              Ver detalhes
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

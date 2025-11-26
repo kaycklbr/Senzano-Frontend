@@ -7,8 +7,9 @@
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-    RewriteRule ^schemas/1\.0/VRSync/?$ schemas.php [L,QSA]
+  RewriteRule ^schemas/1\.0/VRSync/?$ schemas.php [L,QSA]
 
-  # Otherwise, send all requests to index.html
-  RewriteRule ^ index.html [L]
+  # Send all requests to index.php for dynamic meta tags
+  RewriteRule ^ index.php [L]
 </IfModule>
+
