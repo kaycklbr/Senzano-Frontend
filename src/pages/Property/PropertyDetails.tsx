@@ -485,7 +485,7 @@ export default function PropertyDetails() {
                   </span>
                 </button>
 
-                <a href={`https://wa.me/55${isVenda ? config?.whatsapp_lais.replace(/\D+/g, '') : config?.phone_locacao.replace(/\D+/g, '') }`} target="_blank" className="w-full bg-gradient-to-r from-red-600 to-primary rounded-[15px] py-2 flex items-center justify-center gap-2 hover:shadow-lg transition-all">
+                <a href={`https://wa.me/55${isVenda ? (config?.whatsapp_lais || '')?.replace(/\D+/g, '') : (config?.whatsapp_locacao_lais || '')?.replace(/\D+/g, '') }`} target="_blank" className="w-full bg-gradient-to-r from-red-600 to-primary rounded-[15px] py-2 flex items-center justify-center gap-2 hover:shadow-lg transition-all">
                   <FaWhatsapp className="w-5 h-5 text-white"/>
                   <span className="text-base font-semibold text-white">
                     Chame no Whatsapp

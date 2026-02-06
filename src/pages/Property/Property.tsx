@@ -63,7 +63,7 @@ export default function Property() {
   useEffect(() => {
     fetchFilters();
     resetAndFetchProperties();
-  }, []);
+  }, [property]);
 
   useEffect(() => {
     fetchFilters();

@@ -26,6 +26,7 @@ export default function UserInfoCard() {
     phone_vendas: '',
     email_contato: '',
     whatsapp_lais: '',
+    whatsapp_locacao_lais: '',
     video_ebs: ''
   });
 
@@ -55,6 +56,7 @@ export default function UserInfoCard() {
         phone_vendas: settingsMap.phone_vendas || '',
         email_contato: settingsMap.email_contato || '',
         whatsapp_lais: settingsMap.whatsapp_lais || '',
+        whatsapp_locacao_lais: settingsMap.whatsapp_locacao_lais || '',
         video_ebs: settingsMap.video_ebs || '',
       });
     } catch (err) {
@@ -73,6 +75,7 @@ export default function UserInfoCard() {
         { key: 'youtube', value: formData.youtube, type: 'text' },
         { key: 'address', value: formData.address, type: 'text' },
         { key: 'whatsapp_lais', value: formData.whatsapp_lais, type: 'text' },
+        { key: 'whatsapp_locacao_lais', value: formData.whatsapp_locacao_lais, type: 'text' },
         { key: 'whatsapp', value: formData.whatsapp, type: 'text' },
         { key: 'tiktok', value: formData.tiktok, type: 'text' },
         { key: 'phone_senzano', value: formData.phone_senzano, type: 'text' },
@@ -223,11 +226,20 @@ export default function UserInfoCard() {
             />
           </div>
           <div>
-            <Label>WhatsApp Lais.AI</Label>
+            <Label>WhatsApp Vendas Lais.AI</Label>
             <Input 
               type="text" 
               value={formData.whatsapp_lais}
               onChange={(e) => setFormData({...formData, whatsapp_lais: phoneMask(e.target.value)})}
+              placeholder="(11) 99999-9999"
+            />
+          </div>
+          <div>
+            <Label>WhatsApp Locação Lais.AI</Label>
+            <Input 
+              type="text" 
+              value={formData.whatsapp_locacao_lais}
+              onChange={(e) => setFormData({...formData, whatsapp_locacao_lais: phoneMask(e.target.value)})}
               placeholder="(11) 99999-9999"
             />
           </div>

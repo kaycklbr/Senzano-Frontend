@@ -8,6 +8,7 @@ export interface Config {
   phone_locacao?: string;
   email_contato?: string;
   whatsapp_lais?: string;
+  whatsapp_locacao_lais?: string;
   facebook?: string;
   youtube?: string;
   whatsapp?: string;
