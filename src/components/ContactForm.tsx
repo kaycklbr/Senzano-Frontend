@@ -8,7 +8,8 @@ const ContactForm = () => {
     lastname: '',
     email: '',
     cellphone: '',
-    type: 'locacao'
+    type: 'locacao',
+    deal: true
   });
 
   const [ submitting, setSubmitting ] = useState(false);

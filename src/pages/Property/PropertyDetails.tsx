@@ -23,6 +23,8 @@ import CONFIG from "../../constants/config";
 import { getYouTubeVideoId } from "../../services/utils";
 import { FullScreenViewer, ImageViewer } from 'react-iv-viewer';
 import PageMeta from "../../components/common/PageMeta";
+import { FaWhatsapp } from "react-icons/fa6";
+import { useConfig } from "../../context/ConfigContext";
 
 interface PropertyDetail {
   id: number;
@@ -76,6 +78,9 @@ export default function PropertyDetails() {
   const [submitting, setSubmitting] = useState(false);
   const swiperRef = useRef(null);
   const backgroundSwiperRef = useRef(null);
+
+  const { config } = useConfig();
+  
 
     const [ location, setLocation ] = useState({
     lat:-7.007260,
@@ -181,7 +186,8 @@ export default function PropertyDetails() {
     try {
       await axios.post(`${CONFIG.BASE_URL}/properties/note`, {
         ...formData,
-        property_id: property.id
+        property_id: property.id,
+        deal: true
       });
       alert('Mensagem enviada com sucesso!');
       setShowMessageModal(false);
@@ -479,12 +485,8 @@ export default function PropertyDetails() {
                   </span>
                 </button>
 
-                <a href="/" target="_blank" className="w-full bg-gradient-to-r from-red-600 to-primary rounded-[15px] py-2 flex items-center justify-center gap-2 hover:shadow-lg transition-all">
-                  <img
-                    src="https://storage.googleapis.com/tempo-image-previews/figma-exports%2Fuser_33KiCJsOhVXgExoJMUwtDekAVXW-1760969039529-node-15%3A304-1760969039106.png"
-                    alt="WhatsApp"
-                    className="w-5 h-5"
-                  />
+                <a href={`https://wa.me/55${isVenda ? config?.whatsapp_lais.replace(/\D+/g, '') : config?.phone_locacao.replace(/\D+/g, '') }`} target="_blank" className="w-full bg-gradient-to-r from-red-600 to-primary rounded-[15px] py-2 flex items-center justify-center gap-2 hover:shadow-lg transition-all">
+                  <FaWhatsapp className="w-5 h-5 text-white"/>
                   <span className="text-base font-semibold text-white">
                     Chame no Whatsapp
                   </span>
