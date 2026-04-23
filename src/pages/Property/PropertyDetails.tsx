@@ -367,7 +367,7 @@ export default function PropertyDetails() {
                 <div className="border border-black rounded-[15px] px-4 py-1 flex items-center gap-2">
                   <Fullscreen className="w-5 h-5 text-gray-600" />
                   <span className="text-lg font-semibold text-black">
-                    {parseFloat(property.area_total)}m²
+                    {parseFloat(property.area_total) || parseFloat(property.area_useful)}m²
                   </span>
                 </div>
                 {property.suite > 0 && (

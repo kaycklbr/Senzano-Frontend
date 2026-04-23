@@ -12,12 +12,14 @@ import PageMeta from "../../components/common/PageMeta";
 interface Property {
   id: number;
   title: string;
+  slug: string;
   city: string;
   neighborhood: string;
   address: string;
   bedroom: number;
   bathroom: number;
   area_total: string;
+  area_useful: string;
   sale_value: string;
   rental_value: string;
   property_type: string;
@@ -404,7 +406,7 @@ export default function Property() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Fullscreen size={14}/>
-                            <span>{parseFloat(prop.area_total)}m²</span>
+                            <span>{parseFloat(prop.area_total) || parseFloat(prop.area_useful)}m²</span>
                           </div>
                         </div>
 

@@ -8,6 +8,13 @@ export default defineConfig({
   server: {
     allowedHosts: true
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'page.html'
+      }
+    }
+  },
   plugins: [
     react(),
     svgr({
