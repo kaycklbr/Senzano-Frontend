@@ -10,6 +10,7 @@ export interface PropertyFilters {
   min_price: string;
   max_price: string;
   destination: string;
+  search: string;
 }
 
 const defaultFilters: PropertyFilters = {
@@ -20,7 +21,8 @@ const defaultFilters: PropertyFilters = {
   property_type: [],
   min_price: '',
   max_price: '',
-  destination: ''
+  destination: '',
+  search: ''
 };
 
 export function usePropertyFilters() {
@@ -37,7 +39,8 @@ export function usePropertyFilters() {
       property_type: searchParams.get('property_type')?.split(',').filter(Boolean) || [],
       min_price: searchParams.get('min_price') || '',
       max_price: searchParams.get('max_price') || '',
-      destination: searchParams.get('destination') || ''
+      destination: searchParams.get('destination') || '',
+      search: searchParams.get('search') || ''
     };
   }, [location.search]);
 
@@ -69,7 +72,7 @@ export function usePropertyFilters() {
     setFilters(prev => {
       const newFilters = { ...prev };
       
-      if (filterType === 'min_price' || filterType === 'max_price' || filterType === 'destination') {
+      if (filterType === 'min_price' || filterType === 'max_price' || filterType === 'destination' || filterType === 'search') {
         newFilters[filterType] = value as string;
       } else {
         const currentValues = Array.isArray(prev[filterType]) ? prev[filterType] : [];
@@ -80,14 +83,6 @@ export function usePropertyFilters() {
         } else {
           newFilters[filterType] = [...currentValues, valueStr];
         }
-      }
-      
-      // Reset filtros dependentes
-      if (filterType === 'city') {
-        newFilters.neighborhood = [];
-        newFilters.address = [];
-      } else if (filterType === 'neighborhood') {
-        newFilters.address = [];
       }
       
       updateURL(newFilters);

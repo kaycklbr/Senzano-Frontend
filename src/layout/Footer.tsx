@@ -74,6 +74,7 @@ export default function Footer(){
 
             <div className="flex gap-10 flex-wrap">
               <ul className="space-y-1 font-inter text-sm font-normal">
+                <li className="mb-3 -ml-2"><Link to="https://cliente.portalunsoft.com.br/senzano" target="_blank" className="p-2 border rounded-2xl">Área do Cliente</Link></li>
                 <li><Link to="/venda">Venda</Link></li>
                 <li><Link to="/locacao">Locação</Link></li>
                 <li><Link to="/lancamentos">Lançamentos</Link></li>
@@ -84,10 +85,14 @@ export default function Footer(){
               <div>
                 <ul className="space-y-1 font-inter text-sm font-normal">
                   <li><Link to="/quem-somos">Quem somos</Link></li>
-                  <li><Link to="https://senzanoempreendimentos.com.br/trabalheconosco/">Trabalhe conosco</Link></li>
                   {config?.footer_pages && config.footer_pages.map((p) => {
                     return <li><Link to={p.slug} target={p.slug.startsWith('/') ? '_self' : '_blank'}>{p.title}</Link></li>;
                   })}
+                  <hr/>
+                  <li><Link to="https://ajuda.universalsoftware.com.br/artigo/acesso-area-do-cliente-imoview">Como acessar a a área do cliente</Link></li>
+                  <li><Link to="https://ajuda.universalsoftware.com.br/artigo/funcionalidades-locador-area-do-cliente-imoview">Funcionalidades para locadores</Link></li>
+                  <li><Link to="https://ajuda.universalsoftware.com.br/artigo/funcionalidades-locatario-area-do-cliente-imoview">Funcionalidades para locatários</Link></li>
+
                   
                 </ul>
               </div>

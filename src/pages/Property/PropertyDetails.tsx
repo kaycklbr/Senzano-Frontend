@@ -11,17 +11,19 @@ import {
   Bath,
   Fullscreen,
   Car,
+  House,
 } from "lucide-react";
 import { useParams, Link } from "react-router";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import PropertyCard from "../../components/PropertyCard";
 import { GoogleMap, Marker } from '@react-google-maps/api'
 import CONFIG from "../../constants/config";
-import { getYouTubeVideoId } from "../../services/utils";
+import { getYouTubeVideoId, normalizeDescription } from "../../services/utils";
 import { FullScreenViewer, ImageViewer } from 'react-iv-viewer';
+import { X } from "lucide-react";
 import PageMeta from "../../components/common/PageMeta";
 import { FaWhatsapp } from "react-icons/fa6";
 import { useConfig } from "../../context/ConfigContext";
@@ -76,8 +78,11 @@ export default function PropertyDetails() {
     message: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [fullscreenInitialSlide, setFullscreenInitialSlide] = useState(0);
   const swiperRef = useRef(null);
   const backgroundSwiperRef = useRef(null);
+  const fullscreenSwiperRef = useRef(null);
 
   const { config } = useConfig();
   
@@ -138,7 +143,7 @@ export default function PropertyDetails() {
     );
   }
 
-  const isVenda = property.crm_origin === 'imobzi';
+  const isVenda = property.finality === 'Venda';
   const price = parseFloat(property?.sale_value) || parseFloat(property?.rental_value);
   const condominioPrice = parseFloat(property?.condominio || 0);
   const iptuPrice = parseFloat(property?.iptu || 0);
@@ -230,7 +235,7 @@ export default function PropertyDetails() {
                   ))}
                 </Swiper>
             </div>
-            <div className="relative bg-gray-300 rounded-[15px] aspect-video mb-4 overflow-hidden max-w-3xl z-1 shadow-lg">
+            <div className="relative bg-gray-300 rounded-[15px] aspect-video mb-4 overflow-hidden max-w-4xl z-1 shadow-lg">
               {showMedia == 'maps' ? (
                 <div className="w-3xl max-w-full h-full flex items-center justify-center bg-gray-200">
                    <GoogleMap
@@ -280,19 +285,13 @@ export default function PropertyDetails() {
                   {(showMedia == 'fotos' ? images : videos).map((media, index) => (
                     <SwiperSlide key={index}>
                       {showMedia == 'fotos' ? 
-                      <FullScreenViewer 
-                      img={media} 
-                      zoomStep={50}
-                      snapView={false}
-                      style={{background:'transparent'}}
-                      defaultZoom={100}
-
-                      hasZoomButtons={false}
-                      // alt={`${property.title} - Media ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      <img 
+                        src={media}
+                        onClick={() => { setFullscreenInitialSlide(index); setFullscreenOpen(true); }}
+                        className="w-full h-full object-cover cursor-pointer"
                       />
                        :
-                       <iframe className="w-full h-full" src={"https://www.youtube.com/embed/"+getYouTubeVideoId(media)} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                       <iframe className="w-full h-full" src={"https://www.youtube.com/embed/"+getYouTubeVideoId(media)} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
                       }
                     </SwiperSlide>
                   ))}
@@ -364,12 +363,19 @@ export default function PropertyDetails() {
 
               {/* Property Features */}
               <div className="flex flex-wrap gap-4 mb-8">
-                <div className="border border-black rounded-[15px] px-4 py-1 flex items-center gap-2">
+                
+                {!!parseFloat(property.area_total) && <div className="border border-black rounded-[15px] px-4 py-1 flex items-center gap-2">
                   <Fullscreen className="w-5 h-5 text-gray-600" />
                   <span className="text-lg font-semibold text-black">
-                    {parseFloat(property.area_total) || parseFloat(property.area_useful)}m²
+                   {parseFloat(property.area_total).toFixed(2).replace('.', ',')}m² Externo
                   </span>
-                </div>
+                </div>}
+                {!!parseFloat(property.area_useful) && <div className="border border-black rounded-[15px] px-4 py-1 flex items-center gap-2">
+                  <House className="w-5 h-5 text-gray-600" />
+                  <span className="text-lg font-semibold text-black">
+                    {parseFloat(property.area_useful).toFixed(2).replace('.', ',')}m²
+                  </span>
+                </div>}
                 {property.suite > 0 && (
                   <div className="border border-black rounded-[15px] px-4 py-1 flex items-center gap-2">
                     <Bed className="w-5 h-5 text-gray-600" />
@@ -412,7 +418,7 @@ export default function PropertyDetails() {
               {/* Description */}
               <div className="mb-6">
                 <p className="text-sm text-black leading-7">
-                  <div dangerouslySetInnerHTML={{ __html: property.description || 'Descrição não disponível para este imóvel.'}}/>
+                  <div dangerouslySetInnerHTML={{ __html: normalizeDescription(property.description || 'Descrição não disponível para este imóvel.')}}/>
                 </p>
               </div>
               
@@ -525,6 +531,48 @@ export default function PropertyDetails() {
           </div>
         </div>
       </section>
+
+      {/* Fullscreen Image Modal */}
+      {fullscreenOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center">
+          <button
+            onClick={() => setFullscreenOpen(false)}
+            className="absolute top-4 right-4 z-10 bg-white/20 hover:bg-white/40 rounded-full p-2 transition-colors"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+          <Swiper
+            ref={fullscreenSwiperRef}
+            modules={[Navigation, Autoplay]}
+            spaceBetween={0}
+            slidesPerView={1}
+            loop
+            initialSlide={fullscreenInitialSlide}
+            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            navigation={{
+              prevEl: '.fullscreen-prev',
+              nextEl: '.fullscreen-next',
+            }}
+            className="w-full h-full"
+          >
+            {images.map((image, index) => (
+              <SwiperSlide key={index} className="flex items-center justify-center">
+                <img
+                  src={image}
+                  alt={`${property.title} - Imagem ${index + 1}`}
+                  className="w-full h-full object-contain"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <button className="fullscreen-prev absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 rounded-full p-3 z-10 transition-colors">
+            <ChevronLeft className="w-8 h-8 text-white" />
+          </button>
+          <button className="fullscreen-next absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 rounded-full p-3 z-10 transition-colors">
+            <ChevronRight className="w-8 h-8 text-white" />
+          </button>
+        </div>
+      )}
 
       {/* Message Modal */}
       {showMessageModal && (

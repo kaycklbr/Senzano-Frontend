@@ -1,5 +1,5 @@
 import { useParams, Navigate, Link, useLocation } from "react-router-dom";
-import { MapPin, Bed, Bath, Fullscreen, Loader2, ChevronDown, X } from "lucide-react";
+import { MapPin, Bed, Bath, Fullscreen, Loader2, ChevronDown, X, Search } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import Button from "../../components/Button";
@@ -39,6 +39,13 @@ export default function Property() {
   const property = location.pathname.split("/")[1];
   const { filters: selectedFilters, updateFilter, clearFilters } = usePropertyFilters();
   const [properties, setProperties] = useState<Property[]>([]);
+  const [allFilters, setAllFilters] = useState<FilterOptions>({
+    cities: [],
+    neighborhoods: [],
+    addresses: [],
+    bedrooms: [],
+    property_types: []
+  });
   const [filters, setFilters] = useState<FilterOptions>({
     cities: [],
     neighborhoods: [],
@@ -63,26 +70,29 @@ export default function Property() {
   const cardLabel = isVenda ? 'Venda' : 'Locação';
 
   useEffect(() => {
-    fetchFilters();
+    fetchAllFilters();
     resetAndFetchProperties();
   }, [property]);
 
   useEffect(() => {
-    fetchFilters();
-  }, [selectedFilters.city, selectedFilters.neighborhood, property]);
+    if (selectedFilters.city.length > 0 || selectedFilters.neighborhood.length > 0) {
+      fetchFilteredOptions();
+    } else {
+      setFilters(allFilters);
+    }
+  }, [selectedFilters.city, selectedFilters.neighborhood, allFilters]);
 
   useEffect(() => {
-    // Debounce apenas para filtros de preço
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
     
-    const isPriceFilter = selectedFilters.min_price !== '' || selectedFilters.max_price !== '';
+    const needsDebounce = selectedFilters.min_price !== '' || selectedFilters.max_price !== '' || selectedFilters.search !== '';
     
-    if (isPriceFilter) {
+    if (needsDebounce) {
       debounceRef.current = setTimeout(() => {
         resetAndFetchProperties();
-      }, 300);
+      }, 400);
     } else {
       resetAndFetchProperties();
     }
@@ -94,27 +104,53 @@ export default function Property() {
     };
   }, [selectedFilters]);
 
-  // Busca filtros quando property muda (sem limpar os existentes)
-  useEffect(() => {
-    fetchFilters();
-  }, [property]);
-
   const resetAndFetchProperties = () => {
     setProperties([]);
     setCurrentPage(1);
     fetchProperties(1, true);
   };
 
-  const fetchFilters = async () => {
+  const fetchAllFilters = async () => {
     try {
       const params = new URLSearchParams();
-      if (selectedFilters.city.length > 0) params.append('city', selectedFilters.city.join(','));
-      if (selectedFilters.neighborhood.length > 0) params.append('neighborhood', selectedFilters.neighborhood.join(','));
-      params.append('crm_origin', property == 'venda' ? 'imobzi' : 'imoview');
-      
+      params.append('finality', property == 'venda' ? 'Venda' : 'Aluguel');
       
       const response = await axios.get(`${CONFIG.BASE_URL}/properties/filters?${params}`);
+      setAllFilters(response.data);
       setFilters(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar filtros:', error);
+    }
+  };
+
+  const fetchFilteredOptions = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.append('finality', property == 'venda' ? 'Venda' : 'Aluguel');
+      if (selectedFilters.city.length > 0) params.append('city', selectedFilters.city.join(','));
+      if (selectedFilters.neighborhood.length > 0) params.append('neighborhood', selectedFilters.neighborhood.join(','));
+      
+      const response = await axios.get(`${CONFIG.BASE_URL}/properties/filters?${params}`);
+      const newNeighborhoods = selectedFilters.city.length > 0 ? response.data.neighborhoods : (allFilters.neighborhoods.length > 0 ? allFilters.neighborhoods : response.data.neighborhoods);
+      const newAddresses = selectedFilters.neighborhood.length > 0 ? response.data.addresses : (allFilters.addresses.length > 0 ? allFilters.addresses : response.data.addresses);
+
+      setFilters(prev => ({
+        ...prev,
+        neighborhoods: newNeighborhoods,
+        addresses: newAddresses,
+      }));
+
+      // Desselecionar bairros que não existem mais nas opções filtradas
+      const invalidNeighborhoods = selectedFilters.neighborhood.filter(
+        n => !newNeighborhoods.map((v: string) => v.toLowerCase().trim()).includes(n.toLowerCase().trim())
+      );
+      invalidNeighborhoods.forEach(n => updateFilter('neighborhood', n));
+
+      // Desselecionar ruas que não existem mais nas opções filtradas
+      const invalidAddresses = selectedFilters.address.filter(
+        a => !newAddresses.map((v: string) => v.toLowerCase().trim()).includes(a.toLowerCase().trim())
+      );
+      invalidAddresses.forEach(a => updateFilter('address', a));
     } catch (error) {
       console.error('Erro ao buscar filtros:', error);
     }
@@ -136,7 +172,7 @@ export default function Property() {
           params.append(key, value);
         }
       });
-      params.append('crm_origin', property == 'venda' ? 'imobzi' : 'imoview');
+      params.append('finality', property == 'venda' ? 'Venda' : 'Aluguel');
       params.append('page', page.toString());
       
       const response = await axios.get(`${CONFIG.BASE_URL}/properties?${params}`);
@@ -191,6 +227,20 @@ export default function Property() {
               {title}
             </h1>
 
+            {/* Search Input */}
+            <div className="mx-auto mb-6 md:w-1/2">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={selectedFilters.search}
+                  onChange={(e) => updateFilter('search', e.target.value)}
+                  placeholder="Buscar por nome, endereço..."
+                  className="w-full bg-white rounded-[20px] px-5 py-3 pr-12 text-base md:text-lg font-light text-black placeholder:text-[#7e7e7e] outline-0"
+                />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              </div>
+            </div>
+
             {/* Desktop Filters */}
             <div className="hidden md:grid grid-cols-3 gap-4 mb-6">
               {/* Cidade */}
@@ -200,6 +250,7 @@ export default function Property() {
                 value={selectedFilters.city}
                 onChange={(value) => updateFilter('city', value)}
                 multiple
+                searchable
               />
 
               {/* Bairro */}
@@ -208,8 +259,8 @@ export default function Property() {
                 options={filters?.neighborhoods?.map(neighborhood => ({ value: neighborhood, label: neighborhood }))}
                 value={selectedFilters.neighborhood}
                 onChange={(value) => updateFilter('neighborhood', value)}
-                disabled={selectedFilters.city.length === 0}
                 multiple
+                searchable
               />
 
               {/* Rua */}
@@ -218,8 +269,8 @@ export default function Property() {
                 options={filters?.addresses?.map(address => ({ value: address, label: address }))}
                 value={selectedFilters.address}
                 onChange={(value) => updateFilter('address', value)}
-                disabled={selectedFilters.neighborhood.length === 0}
                 multiple
+                searchable
               />
 
               {/* Quartos */}
@@ -263,9 +314,15 @@ export default function Property() {
               </button>
             </div>
 
-            <div className="hidden md:flex justify-center">
+            <div className="hidden md:flex md:flex-col items-center gap-3 justify-center">
               <button className="bg-primary text-white rounded-[100px] px-8 md:px-16 py-3 text-[15px] hover:bg-[#8b1a1f] transition-colors">
                 Buscar
+              </button>
+              <button 
+                onClick={clearFilters}
+                className="text-white text-[15px] hover:text-gray-300 transition-colors"
+              >
+                Limpar filtros
               </button>
             </div>
           </div>
@@ -298,6 +355,7 @@ export default function Property() {
                 value={selectedFilters.city}
                 onChange={(value) => updateFilter('city', value)}
                 multiple
+                searchable
               />
 
               <CustomSelect
@@ -305,8 +363,8 @@ export default function Property() {
                 options={filters.neighborhoods.map(neighborhood => ({ value: neighborhood, label: neighborhood }))}
                 value={selectedFilters.neighborhood}
                 onChange={(value) => updateFilter('neighborhood', value)}
-                disabled={selectedFilters.city.length === 0}
                 multiple
+                searchable
               />
 
               <CustomSelect
@@ -314,8 +372,8 @@ export default function Property() {
                 options={filters.addresses.map(address => ({ value: address, label: address }))}
                 value={selectedFilters.address}
                 onChange={(value) => updateFilter('address', value)}
-                disabled={selectedFilters.neighborhood.length === 0}
                 multiple
+                searchable
               />
 
               <CustomSelect

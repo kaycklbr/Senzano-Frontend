@@ -38,6 +38,14 @@ export function getYouTubeVideoId(url) {
   return match ? match[1] : null;
 }
 
+export const normalizeDescription = (description: string) => {
+  try {
+    return JSON.parse(`"${description}"`);
+  } catch {
+    return description;
+  }
+}
+
 export const slugify = (text: string) => {
   return text
     .normalize("NFD") // decompõe caracteres acentuados

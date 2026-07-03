@@ -17,13 +17,14 @@ export default function Header(){
             </Link>
 
             {/* Desktop Menu */}
-            <nav className="hidden md:flex space-x-8 text-sm font-semibold">
+            <nav className="hidden md:flex space-x-8 items-center text-sm font-semibold">
               <Link to="/venda" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Venda</Link>
               <Link to="/locacao" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Locação</Link>
               <Link to="/empreendimentos" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Empreendimentos</Link>
               <Link to="/lancamentos" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"><span className="font-icomoon">S</span>ó lançamentos</Link>
               <Link to="/anuncie" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Anuncie aqui</Link>
               <Link to="/fale-conosco" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Fale conosco</Link>
+              <Link to="https://cliente.portalunsoft.com.br/senzano" target="_blank" className="relative pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Área do Cliente</Link>
             </nav>
 
             {/* Mobile Menu Button */}
@@ -80,6 +81,10 @@ export default function Header(){
             >
               Fale conosco
             </Link>
+            <Link to="https://cliente.portalunsoft.com.br/senzano" target="_blank" className="hover:text-primary transition-colors">
+              Área do Cliente
+            </Link>
+
           </nav>
         </div>
       </header>

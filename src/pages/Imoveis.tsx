@@ -10,10 +10,11 @@ import { toast } from "react-toastify";
 export default function Imoveis() {
   const [properties, setProperties] = useState([]);
   const [pagination, setPagination] = useState(null);
-  const [stats, setStats] = useState({ total: 0, imobzi: 0, imoview: 0 });
+  const [stats, setStats] = useState({ total: 0, venda: 0, locacao: 0 });
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     crm_origin: '',
+    finality: '',
     featured: false,
     search: ''
   });
@@ -25,7 +26,8 @@ export default function Imoveis() {
   const loadProperties = async (page = 1) => {
     try {
       const params = new URLSearchParams();
-      if (filters.crm_origin) params.append('crm_origin', filters.crm_origin);
+    //   if (filters.crm_origin) params.append('crm_origin', filters.crm_origin);
+      if (filters.finality) params.append('finality', filters.finality);
       if (filters.featured) params.append('destaque', '1');
       if (filters.search) params.append('search', filters.search);
       params.append('page', page.toString());
@@ -121,16 +123,16 @@ export default function Imoveis() {
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Imobzi</p>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{stats.imobzi}</p>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Venda</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{stats.venda}</p>
               </div>
             </div>
           </div>
           <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Imoview</p>
-                <p className="text-2xl font-bold text-green-900 dark:text-green-100">{stats.imoview}</p>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">Aluguel</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-100">{stats.locacao}</p>
               </div>
             </div>
           </div>
@@ -141,15 +143,15 @@ export default function Imoveis() {
         <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
             <div>
-              <Label>CRM Origin</Label>
+              <Label>Finalidade</Label>
               <select
-                value={filters.crm_origin}
-                onChange={(e) => setFilters({...filters, crm_origin: e.target.value})}
+                value={filters.finality}
+                onChange={(e) => setFilters({...filters, finality: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               >
                 <option value="">Todos</option>
-                <option value="imobzi">Imobzi</option>
-                <option value="imoview">Imoview</option>
+                <option value="venda">Venda</option>
+                <option value="locacao">Aluguel</option>
               </select>
             </div>
             
@@ -192,7 +194,7 @@ export default function Imoveis() {
                   <tr className="border-b border-gray-200 dark:border-gray-700">
                     <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Imagem</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Título</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">CRM</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Finalidade</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Código</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Preço</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Destaque</th>
@@ -220,11 +222,11 @@ export default function Imoveis() {
                       </td>
                       <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                         <span className={`px-2 py-1 rounded-full text-xs ${
-                          property.crm_origin === 'imobzi' 
+                          property.finality === 'Venda' 
                             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                             : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                         }`}>
-                          {property.crm_origin}
+                          {property.finality}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-gray-600 dark:text-gray-400">

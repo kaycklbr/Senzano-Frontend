@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import CustomSelect from "./CustomSelect";
 import PriceRangeSelect from "./PriceRangeSelect";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import CONFIG from "../constants/config";
 
@@ -26,16 +26,26 @@ const initialFilters = {
   bedroom: '',
   property_type: '',
   min_price: '',
-  max_price: ''
+  max_price: '',
+  search: ''
 };
 
 export default function CustomSearch({ 
 
 }) {
 
-  const [ propertyType, setPropertyType ] = useState('imobzi');
+  const navigate = useNavigate();
+  const [ propertyType, setPropertyType ] = useState('venda');
   const [ searchUrl, setSearchUrl ] = useState('/' + propertyType);
+  const [ searchText, setSearchText ] = useState('');
 
+  const [allFilters, setAllFilters] = useState<any>({
+    cities: [],
+    neighborhoods: [],
+    addresses: [],
+    bedrooms: [],
+    property_types: []
+  });
   const [filters, setFilters] = useState<any>({
     cities: [],
     neighborhoods: [],
@@ -46,51 +56,75 @@ export default function CustomSearch({
   const [selectedFilters, setSelectedFilters] = useState(initialFilters);
 
   useEffect(() => {
-    fetchFilters();
-  }, [selectedFilters.city, selectedFilters.neighborhood, propertyType]);
+    fetchAllFilters();
+  }, [propertyType]);
+
+  useEffect(() => {
+    fetchFilteredOptions();
+  }, [selectedFilters.city, selectedFilters.neighborhood]);
 
   useEffect(() => {
 
-    let url = '/' + (propertyType == 'imobzi' ? 'venda' : 'locacao');
-    const params = new URLSearchParams(selectedFilters);
+    let url = '/' + (propertyType);
+    const params = new URLSearchParams({ ...selectedFilters, search: searchText });
     setSearchUrl(url + '?' + params.toString());
 
-  }, [selectedFilters, propertyType]);
+  }, [selectedFilters, propertyType, searchText]);
 
   useEffect(() => {
 
     setSelectedFilters(initialFilters);
   }, [ propertyType ]);
 
-  const fetchFilters = async () => {
+  const fetchAllFilters = async () => {
     try {
       const params = new URLSearchParams();
-      if (selectedFilters.city) params.append('city', selectedFilters.city);
-      if (selectedFilters.neighborhood) params.append('neighborhood', selectedFilters.neighborhood);
-      params.append('crm_origin', propertyType);
-      
+      params.append('finality', propertyType);
       
       const response = await axios.get(`${CONFIG.BASE_URL}/properties/filters?${params}`);
+      setAllFilters(response.data);
       setFilters(response.data);
     } catch (error) {
       console.error('Erro ao buscar filtros:', error);
     }
   };
 
-  const handleFilterChange = (filterType: string, value: string) => {
-    setSelectedFilters(prev => {
-      const newFilters = { ...prev, [filterType]: value };
+  const fetchFilteredOptions = async () => {
+    if (!selectedFilters.city && !selectedFilters.neighborhood) {
+      setFilters(allFilters);
+      return;
+    }
+    try {
+      const params = new URLSearchParams();
+      params.append('finality', propertyType);
+      if (selectedFilters.city) params.append('city', selectedFilters.city);
+      if (selectedFilters.neighborhood) params.append('neighborhood', selectedFilters.neighborhood);
       
-      // Reset filtros dependentes
-      if (filterType === 'city') {
-        newFilters.neighborhood = '';
-        newFilters.address = '';
-      } else if (filterType === 'neighborhood') {
-        newFilters.address = '';
+      const response = await axios.get(`${CONFIG.BASE_URL}/properties/filters?${params}`);
+      const newNeighborhoods = selectedFilters.city ? response.data.neighborhoods : allFilters.neighborhoods;
+      const newAddresses = selectedFilters.neighborhood ? response.data.addresses : allFilters.addresses;
+
+      setFilters(prev => ({
+        ...prev,
+        neighborhoods: newNeighborhoods,
+        addresses: newAddresses,
+      }));
+
+      // Desselecionar bairro se não existe nas opções filtradas
+      if (selectedFilters.neighborhood && !newNeighborhoods.some((n: string) => n.toLowerCase().trim() === selectedFilters.neighborhood.toLowerCase().trim())) {
+        setSelectedFilters(prev => ({ ...prev, neighborhood: '', address: '' }));
       }
-      
-      return newFilters;
-    });
+      // Desselecionar rua se não existe nas opções filtradas
+      if (selectedFilters.address && !newAddresses.some((a: string) => a.toLowerCase().trim() === selectedFilters.address.toLowerCase().trim())) {
+        setSelectedFilters(prev => ({ ...prev, address: '' }));
+      }
+    } catch (error) {
+      console.error('Erro ao buscar filtros:', error);
+    }
+  };
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    setSelectedFilters(prev => ({ ...prev, [filterType]: value }));
   };
 
   const [ open, setIsOpen ] = useState(false);
@@ -109,8 +143,15 @@ export default function CustomSearch({
 
   return (
     <div ref={dropdownRef} className="relative flex justify-center">
-    <div onClick={() => setIsOpen(!open)} className={"cursor-pointer rounded-[50px] h-[60px] p-4 flex items-center w-full mb-4 transition-all hover:bg-Offwhite " + (open ? 'bg-[#EAEAEA]' : 'bg-white')}>
-      <span className="flex-1 text-center px-3 text-xl outline-0 text-gray-500">O que você procura?</span>
+    <div onClick={() => setIsOpen(true)} className={"cursor-pointer rounded-[50px] h-[60px] p-4 flex items-center w-full mb-4 transition-all hover:bg-Offwhite " + (open ? 'bg-[#EAEAEA]' : 'bg-white')}>
+      <input
+        type="text"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') navigate(searchUrl); }}
+        placeholder="O que você procura?"
+        className="flex-1 text-center px-3 text-xl outline-0 bg-transparent text-black placeholder:text-gray-500"
+      />
       <div className="w-9 h-9 flex items-center justify-center">
         <Search className="w-8 h-8 text-black" />
       </div>
@@ -119,10 +160,10 @@ export default function CustomSearch({
       open ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
     }`}>
     <div className="flex gap-4 justify-center mb-8 flex-wrap">
-      <button onClick={() => setPropertyType('imobzi')} className={"flex-1 rounded-[50px] px-5 py-3 text-xs md:text-sm text-black transition-all hover:bg-primary hover:text-white cursor-pointer " + (propertyType == 'imobzi' ? 'bg-primary text-white' : 'bg-white text-black')}>
+      <button onClick={() => setPropertyType('venda')} className={"flex-1 rounded-[50px] px-5 py-3 text-xs md:text-sm text-black transition-all hover:bg-primary hover:text-white cursor-pointer " + (propertyType == 'venda' ? 'bg-primary text-white' : 'bg-white text-black')}>
         VENDA
       </button>
-      <button onClick={() => setPropertyType('imoview')} className={"flex-1 rounded-[50px] px-5 py-3 text-xs md:text-sm text-black transition-all hover:bg-primary hover:text-white cursor-pointer " + (propertyType == 'imoview' ? 'bg-primary text-white' : 'bg-white text-black')}>
+      <button onClick={() => setPropertyType('locacao')} className={"flex-1 rounded-[50px] px-5 py-3 text-xs md:text-sm text-black transition-all hover:bg-primary hover:text-white cursor-pointer " + (propertyType == 'locacao' ? 'bg-primary text-white' : 'bg-white text-black')}>
         LOCAÇÃO
       </button>
     </div>
@@ -139,7 +180,6 @@ export default function CustomSearch({
       options={filters.neighborhoods.map(neighborhood => ({ value: neighborhood, label: neighborhood }))}
       value={selectedFilters.neighborhood}
       onChange={(value) => handleFilterChange('neighborhood', value)}
-      disabled={!selectedFilters.city}
     />
 
     <CustomSelect
@@ -147,7 +187,6 @@ export default function CustomSearch({
       options={filters.addresses.map(address => ({ value: address, label: address }))}
       value={selectedFilters.address}
       onChange={(value) => handleFilterChange('address', value)}
-      disabled={!selectedFilters.neighborhood}
     />
 
     <CustomSelect
